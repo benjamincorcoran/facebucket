@@ -39,6 +39,7 @@ class Bucket(fbchat.Client):
         self.NEW_ITEM_PATTERN = re.compile(r'give bucket (.*)', flags=re.IGNORECASE+re.DOTALL)
         self.GIVE_ITEM_PATTERN = re.compile(r'bucket give (\w+) a present', flags=re.IGNORECASE)
         self.HELP_PATTERN = re.compile(r'bucket help ?(.*)?', flags=re.IGNORECASE)
+        self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
 
         self.BUCKET_SIZE = 30
 
@@ -172,6 +173,18 @@ class Bucket(fbchat.Client):
         
         self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
 
+    def global_quiet(self, message_object, thread_id, thread_type):
+        minutes = int(re.findall(self.QUIET_PATTERN,message_object.text)[0])
+
+        if minutes <= 60:
+            msg = f"Okay, I'll be quiet for {minutes} minutes."
+        else:
+            minutes = 60
+            msg = f"Err, I'll be quiet for an hour, but I wont be silenced."
+
+        self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+        time.sleep(minutes*60)
+
     def respond_to_message(self, message_object, thread_id, thread_type):
         incoming_msg = re.sub(self.CLEAN_PATTERN, '', message_object.text)
         
@@ -223,6 +236,9 @@ class Bucket(fbchat.Client):
             # Look up help 
             elif re.match(self.HELP_PATTERN, message_object.text):
                 self.respond_with_help_doc(message_object, thread_id, thread_type)
+            # Look for quiet command
+            elif re.match(self.QUIET_PATTERN, message_object.text):
+                self.global_quiet(message_object, thread_id, thread_type)
             # Look for a reponse
             else:
                 self.respond_to_message(message_object, thread_id, thread_type)
