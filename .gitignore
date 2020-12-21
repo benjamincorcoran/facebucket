@@ -1,0 +1,6 @@
+__pycache__/
+.vscode/
+
+*.pem
+main.py
+SESSION.pickle
