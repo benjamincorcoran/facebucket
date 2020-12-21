@@ -183,7 +183,9 @@ class Bucket(fbchat.Client):
             msg = f"Err, I'll be quiet for an hour, but I wont be silenced."
 
         self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+        self.stopListening()
         time.sleep(minutes*60)
+        self.listen()
 
     def respond_to_message(self, message_object, thread_id, thread_type):
         incoming_msg = re.sub(self.CLEAN_PATTERN, '', message_object.text)
