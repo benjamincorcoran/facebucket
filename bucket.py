@@ -196,7 +196,7 @@ class Bucket(fbchat.Client):
                 matches.append(response)
         
         if len(matches) > 0:
-            msg = random.choice(matches)
+            msg = max(matches, key=len)
             if incoming_msg[:6].lower() != 'bucket':
                 for pattern, replacement in self.KEYWORDS.items():
                     msg = re.sub(pattern, replacement, msg)
