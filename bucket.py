@@ -109,7 +109,8 @@ class Bucket(fbchat.Client):
             newResponse = re.findall(self.NEW_RESPONSE_PATTERN, message_object.text)[0]
             self.RESPONSES = self.load_responses(newResponse=newResponse)
 
-        msg = f"Okay, if someone says '{newResponse[0]}' then I'll reply '{newResponse[1]}'."
+        user = self.KEYWORDS['\$USER']
+        msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply '{newResponse[1]}'."
         self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
 
     def delete_response(self, message_object, thread_id, thread_type):
