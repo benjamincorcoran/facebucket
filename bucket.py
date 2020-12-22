@@ -198,9 +198,8 @@ class Bucket(fbchat.Client):
         
         if len(matches) > 0:
             msg = max(matches, key=len)
-            if incoming_msg[:6].lower() != 'bucket':
-                for pattern, replacement in self.KEYWORDS.items():
-                    msg = re.sub(pattern, replacement, msg)
+            for pattern, replacement in self.KEYWORDS.items():
+                msg = re.sub(pattern, replacement, msg)
 
             self.send(Message(text=msg, reply_to_id=message_object.uid), thread_id=thread_id, thread_type=thread_type)
            
