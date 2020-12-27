@@ -199,6 +199,9 @@ class Bucket(fbchat.Client):
         if len(matches) > 0:
             msg = max(matches, key=len)
             for pattern, replacement in self.KEYWORDS.items():
+                if callable(replacement):
+                    if re.findall(pattern, msg):
+                        replacement = replacement(*re.findall(pattern, msg))
                 msg = re.sub(pattern, replacement, msg)
 
             self.send(Message(text=msg, reply_to_id=message_object.uid), thread_id=thread_id, thread_type=thread_type)
@@ -219,7 +222,7 @@ class Bucket(fbchat.Client):
         self.KEYWORDS = {
             "\$USER": USER.first_name,
             "\$RANDOM": random.choice(ALLUSERS).first_name,
-            "\$RAND100": random.randint(0,100)
+            "\$RAND(\d+)": lambda x: str(random.randint(0,int(x)))
         } 
 
         # Message handler 

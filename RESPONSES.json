@@ -51,5 +51,7 @@
     "banana": "Attention, I am removing all bananas from the kitchen",
     "test": "you fail",
     "spin the wheel": "The wheel landed on $RANDOM",
-    "hi": "Hi"
+    "hi": "Hi",
+    "whats the probability": "$RAND100%",
+    "roll a dice": "Rolled a $RAND6."
 }
