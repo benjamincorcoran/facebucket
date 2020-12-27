@@ -1,4 +1,5 @@
-{"help":"Hi, I'm bucket. \ud83d\udc4b\n\nI'm a computer and I live in the cloud.\n\nYou can program me!\nYou can use $USER or $RANDOM to put a username in the response.\n\nSay 'bucket help commands' for more.\n\nYou can talk to me in private too.",
+{"help":"Hi, I'm bucket. \ud83d\udc4b\n\nI'm a computer and I live in the cloud.\n\nYou can program me!\nSay 'bucket help keywords' for special keywords.\n\nSay 'bucket help commands' for more.\n\nYou can talk to me in private too.",
+ "keywords":"$USER: Name of user who triggered the response.\n\n$RANDOM a random user.\n\n$RANDXX A random integer up to XX",
  "example":"Try typing: IF bottom THEN oh no, thats rude!",
  "commands":"'bucket no more XXX': I wont react to that anymore.\n\n'give bucket XXX': I can hold 30 things\n\n'bucket give XXX a present': I can give away my things\n\n'bucket shut up XX': I can be quiet for XX minutes"
 }
