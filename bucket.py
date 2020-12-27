@@ -256,7 +256,7 @@ class Bucket(fbchat.Client):
                 self.give_item_to(message_object, thread_id, thread_type)
             # Add a response
             elif re.match(self.NEW_RESPONSE_PATTERN, message_object.text):
-                self.add_to_responses(message_object, thread_id, thread_type, reponseType='then')
+                self.add_to_responses(message_object, thread_id, thread_type, responseType='then')
             # Add a choice response
             elif re.match(self.NEW_CHOICE_PATTERN, message_object.text):
                 self.add_to_responses(message_object, thread_id, thread_type, responseType='choice')
