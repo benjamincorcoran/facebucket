@@ -218,7 +218,8 @@ class Bucket(fbchat.Client):
 
         self.KEYWORDS = {
             "\$USER": USER.first_name,
-            "\$RANDOM": random.choice(ALLUSERS).first_name
+            "\$RANDOM": random.choice(ALLUSERS).first_name,
+            "\$RAND100": random.randint(0,100)
         } 
 
         # Message handler 
