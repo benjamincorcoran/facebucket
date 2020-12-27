@@ -204,9 +204,11 @@ class Bucket(fbchat.Client):
 
             for pattern, replacement in self.KEYWORDS.items():
                 if callable(replacement):
-                    if re.findall(pattern, msg):
-                        replacement = replacement(*re.findall(pattern, msg))
-                msg = re.sub(pattern, replacement, msg)
+                    for find in re.findall(pattern, msg):
+                        msg = re.sub(pattern, replacement(find), msg, count=1)
+                else:
+                    msg = re.sub(pattern, replacement, msg)
+
                 for capture in captures:
                     msg = re.sub(r"\$WORD",capture,msg,count=1)
 
@@ -228,7 +230,7 @@ class Bucket(fbchat.Client):
         self.KEYWORDS = {
             "\$USER": USER.first_name,
             "\$RANDOM": random.choice(ALLUSERS).first_name,
-            "\$RAND(\d+)": lambda x: str(random.randint(0,int(x)))
+            "\$RAND(\d+)": lambda x: str(random.randint(1,int(x)))
         } 
 
         # Message handler 
