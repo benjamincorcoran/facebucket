@@ -118,7 +118,7 @@ class Bucket(fbchat.Client):
             elif responseType == 'choice':
                 newResponse = re.findall(self.NEW_CHOICE_PATTERN, message_object.text)[0]
                 newResponse = (newResponse[0], newResponse[1].split(';'))
-                msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply with one of '{','.join(newResponse[1])}'."
+                msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply with one of '{', '.join(newResponse[1])}'."
        
         self.RESPONSES = self.load_responses(newResponse=newResponse)
         self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
