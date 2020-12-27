@@ -26,7 +26,7 @@ class Bucket(fbchat.Client):
         self.get_session()
         super(Bucket, self).__init__('<email>', '<password>', session_cookies=self.SESSION_COOKIES)
 
-        self.CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s\$]')
+        self.CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s\$;]')
 
         self.RESPONSES = self.load_responses()
         self.ITEMS = self.load_items()[0]
@@ -35,6 +35,7 @@ class Bucket(fbchat.Client):
         self.KEYWORDS = None
 
         self.NEW_RESPONSE_PATTERN = re.compile(r'if (.*) then (.*)', flags=re.IGNORECASE+re.DOTALL)
+        self.NEW_CHOICE_PATTERN = re.compile(r'if (.*) choose (.*)', flags=re.IGNORECASE+re.DOTALL)
         self.DELETE_RESPONSE_PATTERN = re.compile(r'bucket no more (.*)', flags=re.IGNORECASE+re.DOTALL)
         self.NEW_ITEM_PATTERN = re.compile(r'give bucket (.*)', flags=re.IGNORECASE+re.DOTALL)
         self.GIVE_ITEM_PATTERN = re.compile(r'bucket give (\w+) a present', flags=re.IGNORECASE)
@@ -104,14 +105,22 @@ class Bucket(fbchat.Client):
         yield None
         self.setTypingStatus(fbchat.TypingStatus(0), thread_id=thread_id, thread_type=thread_type)
 
-    def add_to_responses(self, message_object, thread_id, thread_type):
-
-        with self.appearing_in_thought(thread_id, thread_type):
-            newResponse = re.findall(self.NEW_RESPONSE_PATTERN, message_object.text)[0]
-            self.RESPONSES = self.load_responses(newResponse=newResponse)
+    def add_to_responses(self, message_object, thread_id, thread_type, responseType='then'):
 
         user = self.KEYWORDS['\$USER']
-        msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply '{newResponse[1]}'."
+
+        with self.appearing_in_thought(thread_id, thread_type):
+            if responseType == 'then':
+                newResponse = re.findall(self.NEW_RESPONSE_PATTERN, message_object.text)
+                newResponse = newResponse[0]
+                msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply '{newResponse[1]}'."
+            
+            elif responseType == 'choice':
+                newResponse = re.findall(self.NEW_CHOICE_PATTERN, message_object.text)[0]
+                newResponse = (newResponse[0], newResponse[1].split(';'))
+                msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply with one of '{','.join(newResponse[1])}'."
+       
+        self.RESPONSES = self.load_responses(newResponse=newResponse)
         self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
 
     def delete_response(self, message_object, thread_id, thread_type):
@@ -196,23 +205,27 @@ class Bucket(fbchat.Client):
         for pattern, response in self.RESPONSES.items():
             search = re.search(pattern, incoming_msg)
             if search:
-                matches[response]=search.groups()
+                matches[pattern.pattern]=(response, search.groups())
         
         if len(matches) > 0:
-            msg = max(matches.keys(), key=len)
-            captures = matches[msg]
+            bestMatch = matches[max(matches.keys(), key=len)]
+            response = bestMatch[0]
+            captures = bestMatch[1]
+
+            if isinstance(response, list):
+                response = random.choice(response)
 
             for pattern, replacement in self.KEYWORDS.items():
                 if callable(replacement):
-                    for find in re.findall(pattern, msg):
-                        msg = re.sub(pattern, replacement(find), msg, count=1)
+                    for find in re.findall(pattern, response):
+                        response = re.sub(pattern, replacement(find), response, count=1)
                 else:
-                    msg = re.sub(pattern, replacement, msg)
+                    response = re.sub(pattern, replacement, response)
 
                 for capture in captures:
-                    msg = re.sub(r"\$WORD",capture,msg,count=1)
+                    response = re.sub(r"\$WORD",capture,response,count=1)
 
-            self.send(Message(text=msg, reply_to_id=message_object.uid), thread_id=thread_id, thread_type=thread_type)
+            self.send(Message(text=response, reply_to_id=message_object.uid), thread_id=thread_id, thread_type=thread_type)
            
 
     def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
@@ -243,7 +256,10 @@ class Bucket(fbchat.Client):
                 self.give_item_to(message_object, thread_id, thread_type)
             # Add a response
             elif re.match(self.NEW_RESPONSE_PATTERN, message_object.text):
-                self.add_to_responses(message_object, thread_id, thread_type)
+                self.add_to_responses(message_object, thread_id, thread_type, reponseType='then')
+            # Add a choice response
+            elif re.match(self.NEW_CHOICE_PATTERN, message_object.text):
+                self.add_to_responses(message_object, thread_id, thread_type, responseType='choice')
             # Remove a response
             elif re.match(self.DELETE_RESPONSE_PATTERN, message_object.text):
                 self.delete_response(message_object, thread_id, thread_type)
