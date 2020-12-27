@@ -53,5 +53,6 @@
     "spin the wheel": "The wheel landed on $RANDOM",
     "hi": "Hi",
     "whats the probability": "$RAND100%",
-    "roll a dice": "Rolled a $RAND6."
+    "roll a dice": "Rolled a $RAND6.",
+    "i like $word": "$WORD is rubbish"
 }

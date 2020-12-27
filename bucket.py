@@ -26,7 +26,7 @@ class Bucket(fbchat.Client):
         self.get_session()
         super(Bucket, self).__init__('<email>', '<password>', session_cookies=self.SESSION_COOKIES)
 
-        self.CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s]')
+        self.CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s\$]')
 
         self.RESPONSES = self.load_responses()
         self.ITEMS = self.load_items()[0]
@@ -49,7 +49,8 @@ class Bucket(fbchat.Client):
 
     def clean_pattern(self, string):
         clean = re.sub(self.CLEAN_PATTERN, '', string)
-        bordered = re.compile(rf'\b{clean}\b', flags=re.IGNORECASE)
+        pattern = re.sub('\$WORD','([A-Za-z]+)',clean, flags=re.IGNORECASE)
+        bordered = re.compile(rf'\b{pattern}\b', flags=re.IGNORECASE)
 
         return bordered
 
@@ -86,7 +87,7 @@ class Bucket(fbchat.Client):
             with open(RESPONSE_PATH, 'w') as f:
                 f.write(json.dumps(responses, indent=4))
 
-        elif delete is not None and delete in responses.keys():
+        elif delete is not None and delete.lower() in responses.keys():
             del responses[delete.lower()]
         
             with open(RESPONSE_PATH, 'w') as f:
@@ -191,18 +192,23 @@ class Bucket(fbchat.Client):
     def respond_to_message(self, message_object, thread_id, thread_type):
         incoming_msg = re.sub(self.CLEAN_PATTERN, '', message_object.text)
         
-        matches = []
+        matches = {}
         for pattern, response in self.RESPONSES.items():
-            if re.search(pattern, incoming_msg):
-                matches.append(response)
+            search = re.search(pattern, incoming_msg)
+            if search:
+                matches[response]=search.groups()
         
         if len(matches) > 0:
-            msg = max(matches, key=len)
+            msg = max(matches.keys(), key=len)
+            captures = matches[msg]
+
             for pattern, replacement in self.KEYWORDS.items():
                 if callable(replacement):
                     if re.findall(pattern, msg):
                         replacement = replacement(*re.findall(pattern, msg))
                 msg = re.sub(pattern, replacement, msg)
+                for capture in captures:
+                    msg = re.sub(r"\$WORD",capture,msg,count=1)
 
             self.send(Message(text=msg, reply_to_id=message_object.uid), thread_id=thread_id, thread_type=thread_type)
            
