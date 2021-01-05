@@ -234,7 +234,7 @@ class Bucket(fbchat.Client):
     def onPendingMessage(self, thread_id, thread_type, metadata, msg):
         self.moveThreads(ThreadLocation.INBOX, thread_id)
         self.markAsRead(thread_id)
-        self.respond_with_help_doc(Message(text='bucket help'), thread_id, ThreadType.GROUP)
+        self.respond_with_help_doc(Message(text='bucket help'), thread_id, thread_type)
 
     def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
 
