@@ -8,7 +8,7 @@ import time
 import contextlib
 
 from fbchat import log, Client
-from fbchat import Message, User, ThreadType
+from fbchat import Message, User, ThreadType, ThreadLocation
 
 fbchat._util.USER_AGENTS    = ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"]
 fbchat._state.FB_DTSG_REGEX = re.compile(r'"name":"fb_dtsg","value":"(.*?)"')
@@ -232,6 +232,7 @@ class Bucket(fbchat.Client):
         self.respond_with_help_doc(Message(text='bucket help'), thread_id, ThreadType.GROUP)
     
     def onPendingMessage(self, thread_id, thread_type, metadata, msg):
+        self.moveThreads(ThreadLocation.INBOX, thread_id)
         self.markAsRead(thread_id)
         self.respond_with_help_doc(Message(text='bucket help'), thread_id, ThreadType.GROUP)
 
