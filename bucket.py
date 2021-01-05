@@ -230,6 +230,10 @@ class Bucket(fbchat.Client):
     def onPeopleAdded(self, added_ids, author_id, thread_id):
         self.markAsRead(thread_id)
         self.respond_with_help_doc(Message(text='bucket help'), thread_id, ThreadType.GROUP)
+    
+    def onPendingMessage(self, thread_id, thread_type, metadata, msg):
+        self.markAsRead(thread_id)
+        self.respond_with_help_doc(Message(text='bucket help'), thread_id, ThreadType.GROUP)
 
     def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
 
