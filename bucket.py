@@ -30,7 +30,7 @@ class Bucket(fbchat.Client):
 
         self.RESPONSES = self.load_responses()
         self.ITEMS = self.load_items()[0]
-        self.RESPONSE_PROB = 0.6
+        self.RESPONSE_PROB = 0.8
 
         self.KEYWORDS = None
 
@@ -273,7 +273,7 @@ class Bucket(fbchat.Client):
             elif re.match(self.QUIET_PATTERN, message_object.text):
                 self.global_quiet(message_object, thread_id, thread_type)
             # Look for a reponse
-            else:
+            elif random.random() < self.RESPONSE_PROB:
                 self.respond_to_message(message_object, thread_id, thread_type)
                 
 
