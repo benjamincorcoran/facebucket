@@ -6,6 +6,7 @@ import random
 import collections
 import time
 import contextlib
+import collections
 
 from fbchat import log, Client
 from fbchat import Message, User, ThreadType, ThreadLocation
@@ -46,7 +47,7 @@ class Bucket(fbchat.Client):
 
         self.BUCKET_SIZE = 30
 
-        self.MESSAGE_HISTORY = []
+        self.MESSAGE_HISTORY = collections.defaultdict(list)
 
     def get_session(self):
         with open(SESSION_PATH,'rb') as f:
@@ -213,14 +214,13 @@ class Bucket(fbchat.Client):
         time.sleep(minutes*60)
         self.listen()
     
-    def add_to_message_history(self, message_object):
-        self.MESSAGE_HISTORY.append(message_object.text)
+    def add_to_message_history(self, message_object, thread_id):
+        self.MESSAGE_HISTORY[thread_id].append(message_object.text)
         if len(self.MESSAGE_HISTORY) > 3:
             self.MESSAGE_HISTORY = self.MESSAGE_HISTORY[:-3] 
 
-    def last_message_was_haiku(self):
-        haiku_test = [len(re.findall(r'([aeiouy])', msg, flags=re.IGNORECASE)) for msg in self.MESSAGE_HISTORY]
-
+    def last_message_was_haiku(self, thread_id):
+        haiku_test = [len(re.findall(r'([aeiouy])', msg, flags=re.IGNORECASE)) for msg in self.MESSAGE_HISTORY[thread_id]]
         
         if haiku_test == [5,7,5]:
             return True
@@ -271,7 +271,7 @@ class Bucket(fbchat.Client):
 
         self.markAsDelivered(thread_id, message_object.uid)
         self.markAsRead(thread_id)
-        self.add_to_message_history(message_object)
+        self.add_to_message_history(message_object, thread_id)
 
         USER = self.fetchUserInfo(author_id)[f'{author_id}']
 
@@ -317,8 +317,8 @@ class Bucket(fbchat.Client):
             elif re.match(self.QUIET_PATTERN, message_object.text):
                 self.global_quiet(message_object, thread_id, thread_type)
             # Look for a reponse
-            elif self.last_message_was_haiku():
-                self.MESSAGE_HISTORY = []
+            elif self.last_message_was_haiku(thread_id):
+                self.MESSAGE_HISTORY[thread_id] = []
                 self.send(Message(text='Was that a haiku?'), thread_id=thread_id, thread_type=thread_type)
             elif random.random() < self.RESPONSE_PROB:
                 self.respond_to_message(message_object, thread_id, thread_type)
