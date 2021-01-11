@@ -56,10 +56,10 @@ class Bucket(fbchat.Client):
             with open(f'./assets/wordlists/{l}.txt','r') as f:
                 if l == 'verb':
                     verbs = re.split('\n',f.read())
-                    conj = [re.split('\s', verb) for verb in verbs]
+                    conj = [re.split('\s+', verb) for verb in verbs]
                     self.wordLists[l] = conj
                 else: 
-                    self.wordLists[l] = re.split(r'\n',f.read())
+                    self.wordLists[l] = re.split(r'\s+',f.read())
 
     def clean_pattern(self, string):
         clean = re.sub(self.CLEAN_PATTERN, '', string)
@@ -249,6 +249,7 @@ class Bucket(fbchat.Client):
         self.markAsRead(thread_id)
         self.respond_with_help_doc(Message(text='bucket help'), thread_id, thread_type)
 
+
     def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
 
         self.markAsDelivered(thread_id, message_object.uid)
@@ -263,15 +264,15 @@ class Bucket(fbchat.Client):
 
         self.KEYWORDS = {
             "\$USER": USER.first_name,
-            "\$RANDOM": random.choice(ALLUSERS).first_name,
+            "\$RANDOM": lambda _: random.choice(ALLUSERS).first_name,
             "\$RAND(\d+)": lambda x: str(random.randint(1,int(x))),
-            "\$NOUN": lambda x: random.choice(self.wordLists['noun']),
-            "\$ADVERB": lambda x: random.choice(self.wordLists['adverb']),
-            "\$ADJECT": lambda x: random.choice(self.wordLists['adjective']),
-            "\$VERB ": lambda x: random.choice(self.wordLists['verb'])[0],
-            "\$VERBS": lambda x: random.choice(self.wordLists['verb'])[1],
-            "\$VERBED": lambda x: random.choice(self.wordLists['verb'])[2],
-            "\$VERBING": lambda x: random.choice(self.wordLists['verb'])[4],
+            "\$NOUN": lambda _: random.choice(self.wordLists['noun']),
+            "\$ADVERB": lambda _: random.choice(self.wordLists['adverb']),
+            "\$ADJECT": lambda _: random.choice(self.wordLists['adjective']),
+            "\$VERB ": lambda _: random.choice(self.wordLists['verb'])[0],
+            "\$VERBS": lambda _: random.choice(self.wordLists['verb'])[1],
+            "\$VERBED": lambda _: random.choice(self.wordLists['verb'])[2],
+            "\$VERBING": lambda _: random.choice(self.wordLists['verb'])[4],
         } 
 
         # Message handler 

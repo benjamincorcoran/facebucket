@@ -56,6 +56,10 @@
     "roll a dice": "Rolled a $RAND6.",
     "i like $word": "$WORD is rubbish",
     "madlib": "$NOUN $VERBING $NOUN",
-    "what did you see": "I saw $Random $Verbing a $Noun $Adverb",
-    "fucked it": "Absolutely $verbed it"
+    "what did you see": "I saw $Random $verbing $noun $adverb, it was $adject. $verbed it.",
+    "fucked it": "Absolutely $verbed it",
+    "bucket start a fight": "Hey $RANDOM, I heard $RANDOM say you were a $Adject $noun",
+    "what does he do": "he $verbs",
+    "what does she do": "she $verbs",
+    "what do they do": "they $verb"
 }
