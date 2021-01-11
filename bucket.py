@@ -17,6 +17,7 @@ fbchat._state.FB_DTSG_REGEX = re.compile(r'"name":"fb_dtsg","value":"(.*?)"')
 RESPONSE_PATH = 'RESPONSES.json'
 ITEMS_PATH = 'ITEMS.json'
 SESSION_PATH = 'SESSION.pickle'
+BANDS_PATH = 'BANDS.json'
 HELP_PATH = 'HELP.json'
 
 # Subclass fbchat.Client and override required methods
@@ -33,7 +34,10 @@ class Bucket(fbchat.Client):
 
         self.RESPONSES = self.load_responses()
         self.ITEMS = self.load_items()[0]
-        self.RESPONSE_PROB = 1
+        self.BANDS = self.load_bands()
+
+        self.RESPONSE_PROB = 0.8
+        self.BAND_NAME_PROB = 0.2
 
         self.KEYWORDS = None
 
@@ -46,7 +50,6 @@ class Bucket(fbchat.Client):
         self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
 
         self.BUCKET_SIZE = 30
-
         self.MESSAGE_HISTORY = collections.defaultdict(list)
 
     def get_session(self):
@@ -55,7 +58,7 @@ class Bucket(fbchat.Client):
 
     def load_word_lists(self):
         self.wordLists = {}
-        for l in ['adjective','adverb','noun','verb']:
+        for l in ['adjective','adverb','noun','verb','genre']:
             with open(f'./assets/wordlists/{l}.txt','r') as f:
                 if l == 'verb':
                     verbs = re.split('\n',f.read())
@@ -112,6 +115,11 @@ class Bucket(fbchat.Client):
 
         regexResponses = {self.clean_pattern(pattern):response for pattern, response in responses.items()}
         return regexResponses
+
+    def load_bands(self):
+        with open(BANDS_PATH) as f:
+            bands = json.load(f)
+        return bands
     
     @contextlib.contextmanager
     def appearing_in_thought(self, thread_id, thread_type):  
@@ -227,6 +235,16 @@ class Bucket(fbchat.Client):
         else:
             return False
 
+    def check_band_name(self, message_object, thread_id, thread_type):
+        message = re.split(r'\s', message_object.text)
+        if len(message) == 3 and message_object.text not in set(self.BANDS):
+            self.BANDS.append(message_object.text)
+            with open(BANDS_PATH,'w') as f:
+                 f.write(json.dumps(self.BANDS, indent=4))
+            if random.random() < self.BAND_NAME_PROB:
+                genre = self.KEYWORDS['\$GENRE'](None)
+                self.send(Message(text=f'{message_object.text} would be a good name for a {genre} band.'), thread_id=thread_id, thread_type=thread_type)
+
     def respond_to_message(self, message_object, thread_id, thread_type):
         incoming_msg = re.sub(self.CLEAN_PATTERN, '', message_object.text)
         
@@ -256,6 +274,8 @@ class Bucket(fbchat.Client):
             # Take out reply to id 
             # reply_to_id=message_object.uid
             self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
+        
+            return True
            
     def onPeopleAdded(self, added_ids, author_id, thread_id):
         self.markAsRead(thread_id)
@@ -291,6 +311,7 @@ class Bucket(fbchat.Client):
             "\$VERBS": lambda _: random.choice(self.wordLists['verb'])[1],
             "\$VERBED": lambda _: random.choice(self.wordLists['verb'])[2],
             "\$VERBING": lambda _: random.choice(self.wordLists['verb'])[4],
+            "\$GENRE": lambda _: random.choice(self.wordLists['genre'])
         } 
 
         # Message handler 
@@ -322,6 +343,8 @@ class Bucket(fbchat.Client):
                 self.send(Message(text='Was that a haiku?'), thread_id=thread_id, thread_type=thread_type)
             elif random.random() < self.RESPONSE_PROB:
                 self.respond_to_message(message_object, thread_id, thread_type)
+            
+            self.check_band_name(message_object, thread_id, thread_type)
                 
 
 
