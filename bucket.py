@@ -46,6 +46,8 @@ class Bucket(fbchat.Client):
 
         self.BUCKET_SIZE = 30
 
+        self.MESSAGE_HISTORY = []
+
     def get_session(self):
         with open(SESSION_PATH,'rb') as f:
             self.SESSION_COOKIES = pickle.load(f)
@@ -210,6 +212,19 @@ class Bucket(fbchat.Client):
         self.stopListening()
         time.sleep(minutes*60)
         self.listen()
+    
+    def add_to_message_history(self, message_object):
+        self.MESSAGE_HISTORY.append(message_object.text)
+        if len(self.MESSAGE_HISTORY) > 3:
+            self.MESSAGE_HISTORY = self.MESSAGE_HISTORY[:-3] 
+
+    def last_message_was_haiku(self):
+        haiku_test = [len(re.findall(r'([aeiouy])', msg, flags=re.IGNORECASE)) for msg in self.MESSAGE_HISTORY]
+        
+        if haiku_test == [5,7,5]:
+            return True
+        else:
+            return False
 
     def respond_to_message(self, message_object, thread_id, thread_type):
         incoming_msg = re.sub(self.CLEAN_PATTERN, '', message_object.text)
@@ -254,6 +269,7 @@ class Bucket(fbchat.Client):
 
         self.markAsDelivered(thread_id, message_object.uid)
         self.markAsRead(thread_id)
+        self.add_to_message_history(message_object)
 
         USER = self.fetchUserInfo(author_id)[f'{author_id}']
 
@@ -299,6 +315,9 @@ class Bucket(fbchat.Client):
             elif re.match(self.QUIET_PATTERN, message_object.text):
                 self.global_quiet(message_object, thread_id, thread_type)
             # Look for a reponse
+            elif self.last_message_was_haiku():
+                self.MESSAGE_HISTORY = []
+                self.send(Message(text='Was that a haiku?'), thread_id=thread_id, thread_type=thread_type)
             elif random.random() < self.RESPONSE_PROB:
                 self.respond_to_message(message_object, thread_id, thread_type)
                 
