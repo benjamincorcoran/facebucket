@@ -24,13 +24,15 @@ class Bucket(fbchat.Client):
     def __init__(self, *args, **kwargs):
 
         self.get_session()
+        self.load_word_lists()
+
         super(Bucket, self).__init__('<email>', '<password>', session_cookies=self.SESSION_COOKIES)
 
         self.CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s\$;]')
 
         self.RESPONSES = self.load_responses()
         self.ITEMS = self.load_items()[0]
-        self.RESPONSE_PROB = 0.8
+        self.RESPONSE_PROB = 1
 
         self.KEYWORDS = None
 
@@ -47,6 +49,17 @@ class Bucket(fbchat.Client):
     def get_session(self):
         with open(SESSION_PATH,'rb') as f:
             self.SESSION_COOKIES = pickle.load(f)
+
+    def load_word_lists(self):
+        self.wordLists = {}
+        for l in ['adjective','adverb','noun','verb']:
+            with open(f'./assets/wordlists/{l}.txt','r') as f:
+                if l == 'verb':
+                    verbs = re.split('\n',f.read())
+                    conj = [re.split('\s', verb) for verb in verbs]
+                    self.wordLists[l] = conj
+                else: 
+                    self.wordLists[l] = re.split(r'\n',f.read())
 
     def clean_pattern(self, string):
         clean = re.sub(self.CLEAN_PATTERN, '', string)
@@ -217,10 +230,10 @@ class Bucket(fbchat.Client):
 
             for pattern, replacement in self.KEYWORDS.items():
                 if callable(replacement):
-                    for find in re.findall(pattern, response):
-                        response = re.sub(pattern, replacement(find), response, count=1)
+                    for find in re.findall(pattern, response, flags=re.IGNORECASE):
+                        response = re.sub(pattern, replacement(find), response, count=1, flags=re.IGNORECASE)
                 else:
-                    response = re.sub(pattern, replacement, response)
+                    response = re.sub(pattern, replacement, response, flags=re.IGNORECASE)
 
                 for capture in captures:
                     response = re.sub(r"\$WORD",capture,response,count=1)
@@ -251,7 +264,14 @@ class Bucket(fbchat.Client):
         self.KEYWORDS = {
             "\$USER": USER.first_name,
             "\$RANDOM": random.choice(ALLUSERS).first_name,
-            "\$RAND(\d+)": lambda x: str(random.randint(1,int(x)))
+            "\$RAND(\d+)": lambda x: str(random.randint(1,int(x))),
+            "\$NOUN": lambda x: random.choice(self.wordLists['noun']),
+            "\$ADVERB": lambda x: random.choice(self.wordLists['adverb']),
+            "\$ADJECT": lambda x: random.choice(self.wordLists['adjective']),
+            "\$VERB ": lambda x: random.choice(self.wordLists['verb'])[0],
+            "\$VERBS": lambda x: random.choice(self.wordLists['verb'])[1],
+            "\$VERBED": lambda x: random.choice(self.wordLists['verb'])[2],
+            "\$VERBING": lambda x: random.choice(self.wordLists['verb'])[4],
         } 
 
         # Message handler 
