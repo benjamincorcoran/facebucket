@@ -220,6 +220,7 @@ class Bucket(fbchat.Client):
 
     def last_message_was_haiku(self):
         haiku_test = [len(re.findall(r'([aeiouy])', msg, flags=re.IGNORECASE)) for msg in self.MESSAGE_HISTORY]
+
         
         if haiku_test == [5,7,5]:
             return True
@@ -252,8 +253,9 @@ class Bucket(fbchat.Client):
 
                 for capture in captures:
                     response = re.sub(r"\$WORD",capture,response,count=1)
-
-            self.send(Message(text=response, reply_to_id=message_object.uid), thread_id=thread_id, thread_type=thread_type)
+            # Take out reply to id 
+            # reply_to_id=message_object.uid
+            self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
            
     def onPeopleAdded(self, added_ids, author_id, thread_id):
         self.markAsRead(thread_id)
