@@ -428,7 +428,7 @@ class Bucket(fbchat.Client):
         self.KEYWORDS = {
             r"\$USER": USER.first_name,
             r"\$RANDOM": lambda _: random.choice(ALLUSERS).first_name,
-            # r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
+            r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
         }
         for key in self.wordLists:
             self.KEYWORDS[r'\$'+key.upper()] = lambda _, k=key: random.choice(self.wordLists[k])
