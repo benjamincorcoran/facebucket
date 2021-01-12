@@ -429,7 +429,7 @@ class Bucket(fbchat.Client):
             r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
             r"\$NOUN": lambda _: random.choice(self.wordLists['noun']),
             r"\$ADVERB": lambda _: random.choice(self.wordLists['adverb']),
-            r"\$ADJECT": lambda _: random.choice(self.wordLists['adjective']),
+            r"\$ADJECTIVE": lambda _: random.choice(self.wordLists['adjective']),
             r"\$VERB ": lambda _: random.choice(self.wordLists['verb'])[0],
             r"\$VERBS": lambda _: random.choice(self.wordLists['verb'])[1],
             r"\$VERBED": lambda _: random.choice(self.wordLists['verb'])[2],
