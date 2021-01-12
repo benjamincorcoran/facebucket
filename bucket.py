@@ -419,7 +419,7 @@ class Bucket(fbchat.Client):
 
         if thread_type == ThreadType.GROUP:
             ALLUSERS = [user for uid, user in self.fetchUserInfo(
-                *self.fetchGroupInfo(thread_id)[thread_id].participants).items()]
+                *self.fetchGroupInfo(thread_id)[thread_id].participants).items() if user.first_name != 'Bot']
         else:
             ALLUSERS = [USER]
 
