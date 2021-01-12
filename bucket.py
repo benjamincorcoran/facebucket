@@ -379,7 +379,7 @@ class Bucket(fbchat.Client):
             else:
                 messageHandled = False
             
-            if not messageHandled and random.random() < self.RESPONSE_PROB:
+            if not messageHandled and (random.random() < self.RESPONSE_PROB or re.search('bucket',message_object.text,flags=re.IGNORECASE)):
                 messageHandled = self.respond_to_message(message_object, thread_id, thread_type)
             if not messageHandled and re.match(self.BAND_PATTERN, message_object.text):
                 self.check_band_name(message_object, thread_id, thread_type)
