@@ -11,147 +11,191 @@ import collections
 from fbchat import log, Client
 from fbchat import Message, User, ThreadType, ThreadLocation
 
+from functions import *
+
 fbchat._util.USER_AGENTS    = ["Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"]
 fbchat._state.FB_DTSG_REGEX = re.compile(r'"name":"fb_dtsg","value":"(.*?)"')
 
-RESPONSE_PATH = 'RESPONSES.json'
-ITEMS_PATH = 'ITEMS.json'
-SESSION_PATH = 'SESSION.pickle'
-BANDS_PATH = 'BANDS.json'
-HELP_PATH = 'HELP.json'
+SESSION_PATH = './assets/SESSION.pickle'
+
+class Inventory(object):
+
+    def __init__(self, path):
+
+        self.path = path
+        with open(self.path,'r') as f:
+            self.ITEMS = json.load(f)
+    
+    def add(self, item):
+        self.ITEMS.append(item)
+        self.save()
+    
+    def get(self):
+        if len(self.ITEMS) > 0:
+            item = self.ITEMS.pop(random.randint(0, len(self.ITEMS)))
+        else:
+            item = None
+        self.save()
+        return item
+
+    def has(self, item):
+        if item in set(self.ITEMS):
+            return True
+        else:
+            return False
+
+    def save(self):
+        with open(self.path, 'w') as f:
+            f.write(json.dumps(self.ITEMS, indent=4))
+
+class LimitedInventory(Inventory):
+
+    def __init__(self, path, size):
+
+        self.path = path
+        self.SIZE = size
+
+        with open(self.path,'r') as f:
+            self.ITEMS = json.load(f)
+
+    def add(self, item):
+        if len(self.ITEMS) > self.SIZE:
+            drop = self.get()
+        else:
+            drop = None
+        
+        self.ITEMS.append(item)
+        self.save()
+        return drop
+
+class Responder(object):
+
+    def __init__(self, path):
+        
+        self.CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s\$;]')
+        self.path = path
+        self.load()
+
+    def load(self):
+        with open(self.path, 'r') as f:
+            self.rawResponses = json.load(f)
+
+        self.RESPONSES = {self.parse(trigger):response for trigger, response in self.rawResponses.items()}
+    
+    def clean(self, text):
+        '''
+        Remove non alpha numeric, change $word to capture group and 
+        border pattern. 
+        '''
+        return re.sub(self.CLEAN_PATTERN, '', text)
+
+    def parse(self, text):
+        pattern = re.sub('\$WORD','([A-Za-z]+)', self.clean(text), flags=re.IGNORECASE)
+        bordered = re.compile(rf'\b{pattern}\b', flags=re.IGNORECASE)
+        return bordered
+
+    def add(self, trigger, response):
+        self.rawResponses[trigger.lower()] = response
+        self.RESPONSES[self.parse(trigger.lower())] = response
+        self.save()
+    
+    def remove(self, trigger):
+        del self.rawResponses[trigger.lower()]
+        self.save()
+        self.load()
+
+    def save(self):
+        with open(self.path, 'w') as f:
+            f.write(json.dumps(self.rawResponses, indent=4))
+    
+    def check(self, message):
+        matches = []
+        message = self.clean(message)
+        for trigger, response in self.RESPONSES.items():
+            check = re.search(trigger, message)
+            if check:
+                matches.append((trigger, response, check.groups()))
+        
+        if len(matches) > 0:
+            return max(matches, key=lambda x: len(x[0].pattern))
+        else:
+            return None
+
 
 # Subclass fbchat.Client and override required methods
 class Bucket(fbchat.Client):
 
     def __init__(self, *args, **kwargs):
 
-        self.get_session()
-        self.load_word_lists()
+        # Bucket variables
+        self.RESPONSE_PROB = 0.8
+        self.BAND_NAME_PROB = 0.2
+        self.BUCKET_SIZE = 30
+        self.MESSAGE_HISTORY = collections.defaultdict(list)
+        self.KEYWORDS = None
+
+        # Load session data
+        with open(SESSION_PATH,'rb') as f:
+            self.SESSION_COOKIES = pickle.load(f)
+
+        # Load JSON data into bucket memory
+        data = load_data('./assets/data')
+
+        # Create items invectory
+        self.ITEMS = LimitedInventory('./assets/data/ITEMS.json', self.BUCKET_SIZE)
+        self.RESPONSES = Responder('./assets/data/RESPONSES.json')
+        self.BANDS = Inventory('./assets/data/BANDS.json')
+        self.HELP = data['HELP']        
+
+        # Load wordLists 
+        self.wordLists = load_word_lists('./assets/wordlists')
 
         super(Bucket, self).__init__('<email>', '<password>', session_cookies=self.SESSION_COOKIES)
 
-        self.CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s\$;]')
-
-        self.RESPONSES = self.load_responses()
-        self.ITEMS = self.load_items()[0]
-        self.BANDS = self.load_bands()
-
-        self.RESPONSE_PROB = 0.8
-        self.BAND_NAME_PROB = 0.2
-
-        self.KEYWORDS = None
-
+        # Patterns
         self.NEW_RESPONSE_PATTERN = re.compile(r'if (.*) then (.*)', flags=re.IGNORECASE+re.DOTALL)
         self.NEW_CHOICE_PATTERN = re.compile(r'if (.*) choose (.*)', flags=re.IGNORECASE+re.DOTALL)
         self.DELETE_RESPONSE_PATTERN = re.compile(r'bucket no more (.*)', flags=re.IGNORECASE+re.DOTALL)
         self.NEW_ITEM_PATTERN = re.compile(r'give bucket (.*)', flags=re.IGNORECASE+re.DOTALL)
         self.GIVE_ITEM_PATTERN = re.compile(r'bucket give (\w+) a present', flags=re.IGNORECASE)
+        self.BAND_PATTERN = re.compile(r'^\w+\s\w+\s\w+$', flags=re.IGNORECASE)
         self.HELP_PATTERN = re.compile(r'bucket help ?(.*)?', flags=re.IGNORECASE)
         self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
 
-        self.BUCKET_SIZE = 30
-        self.MESSAGE_HISTORY = collections.defaultdict(list)
 
-    def get_session(self):
-        with open(SESSION_PATH,'rb') as f:
-            self.SESSION_COOKIES = pickle.load(f)
-
-    def load_word_lists(self):
-        self.wordLists = {}
-        for l in ['adjective','adverb','noun','verb','genre']:
-            with open(f'./assets/wordlists/{l}.txt','r') as f:
-                if l == 'verb':
-                    verbs = re.split('\n',f.read())
-                    conj = [re.split('\s+', verb) for verb in verbs]
-                    self.wordLists[l] = conj
-                else: 
-                    self.wordLists[l] = re.split(r'\s+',f.read())
-
-    def clean_pattern(self, string):
-        clean = re.sub(self.CLEAN_PATTERN, '', string)
-        pattern = re.sub('\$WORD','([A-Za-z]+)',clean, flags=re.IGNORECASE)
-        bordered = re.compile(rf'\b{pattern}\b', flags=re.IGNORECASE)
-
-        return bordered
-
-    def load_items(self, newItem=None, gift=False):
-        with open(ITEMS_PATH) as f:
-            items = json.load(f)
-        
-        dropped = None
-        if newItem is not None:
-            if len(items) >= self.BUCKET_SIZE and items:
-                i = random.randint(0, len(self.ITEMS)-1)
-                dropped = items.pop(i)
-            
-            items.append(newItem)
-            with open(ITEMS_PATH, 'w') as f:
-                f.write(json.dumps(items, indent=4))
-
-        if gift is True and items:
-             i = random.randint(0, len(self.ITEMS)-1)
-             dropped = items.pop(i)
-             with open(ITEMS_PATH, 'w') as f:
-                f.write(json.dumps(items, indent=4))
-
-        return items, dropped
     
-    def load_responses(self, newResponse=None, delete=None):
-
-        with open(RESPONSE_PATH) as f:
-            responses = json.load(f)
-        
-        if newResponse is not None:
-            responses[newResponse[0].lower()] = newResponse[1]
-        
-            with open(RESPONSE_PATH, 'w') as f:
-                f.write(json.dumps(responses, indent=4))
-
-        elif delete is not None and delete.lower() in responses.keys():
-            del responses[delete.lower()]
-        
-            with open(RESPONSE_PATH, 'w') as f:
-                f.write(json.dumps(responses, indent=4))
-
-        regexResponses = {self.clean_pattern(pattern):response for pattern, response in responses.items()}
-        return regexResponses
-
-    def load_bands(self):
-        with open(BANDS_PATH) as f:
-            bands = json.load(f)
-        return bands
-    
-    @contextlib.contextmanager
-    def appearing_in_thought(self, thread_id, thread_type):  
-        # Create illusion of thought     
-        self.setTypingStatus(fbchat.TypingStatus(1), thread_id=thread_id, thread_type=thread_type)
-        time.sleep(int(random.random()*2))
-        yield None
-        self.setTypingStatus(fbchat.TypingStatus(0), thread_id=thread_id, thread_type=thread_type)
+    # @contextlib.contextmanager
+    # def appearing_in_thought(self, thread_id, thread_type):  
+    #     # Create illusion of thought     
+    #     self.setTypingStatus(fbchat.TypingStatus(1), thread_id=thread_id, thread_type=thread_type)
+    #     time.sleep(int(random.random()*2))
+    #     yield None
+    #     self.setTypingStatus(fbchat.TypingStatus(0), thread_id=thread_id, thread_type=thread_type)
 
     def add_to_responses(self, message_object, thread_id, thread_type, responseType='then'):
 
         user = self.KEYWORDS['\$USER']
 
-        with self.appearing_in_thought(thread_id, thread_type):
-            if responseType == 'then':
-                newResponse = re.findall(self.NEW_RESPONSE_PATTERN, message_object.text)
-                newResponse = newResponse[0]
-                msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply '{newResponse[1]}'."
-            
-            elif responseType == 'choice':
-                newResponse = re.findall(self.NEW_CHOICE_PATTERN, message_object.text)[0]
-                newResponse = (newResponse[0], [_.strip() for _ in  newResponse[1].split(';')])
-                msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply with one of '{', '.join(newResponse[1])}'."
-       
-        self.RESPONSES = self.load_responses(newResponse=newResponse)
+        # with self.appearing_in_thought(thread_id, thread_type):
+
+        if responseType == 'then':
+            newResponse = re.findall(self.NEW_RESPONSE_PATTERN, message_object.text)[0]
+            msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply '{newResponse[1]}'."
+        
+        elif responseType == 'choice':
+            newResponse = re.findall(self.NEW_CHOICE_PATTERN, message_object.text)[0]
+            newResponse = (newResponse[0], [_.strip() for _ in  newResponse[1].split(';')])
+            msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply with one of '{', '.join(newResponse[1])}'."
+    
+        self.RESPONSES.add(*newResponse)
         self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
 
     def delete_response(self, message_object, thread_id, thread_type):
 
-        with self.appearing_in_thought(thread_id, thread_type):
-            trigger = re.findall(self.DELETE_RESPONSE_PATTERN, message_object.text)[0]
-            self.RESPONSES = self.load_responses(delete=trigger)
+        # with self.appearing_in_thought(thread_id, thread_type):
+        
+        trigger = re.findall(self.DELETE_RESPONSE_PATTERN, message_object.text)[0]
+        self.RESPONSES.remove(trigger)
 
         msg = f"Okay, I wont respond to '{trigger}' anymore :)"
         self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
@@ -159,9 +203,10 @@ class Bucket(fbchat.Client):
 
     def add_to_bucket(self, message_object, thread_id, thread_type):
 
-        with self.appearing_in_thought(thread_id, thread_type):
-            newItem = re.findall(self.NEW_ITEM_PATTERN, message_object.text)[0]
-            self.items, dropped = self.load_items(newItem=newItem)
+        # with self.appearing_in_thought(thread_id, thread_type):
+        
+        newItem = re.findall(self.NEW_ITEM_PATTERN, message_object.text)[0]
+        dropped = self.ITEMS.add(newItem)
 
         if dropped is None:
             msg = f"Bucket is holding {newItem}."
@@ -182,29 +227,25 @@ class Bucket(fbchat.Client):
         else:
             targets = [capture]
 
-        with self.appearing_in_thought(thread_id, thread_type):
-            for target in targets:
-                self.ITEMS, gift = self.load_items(gift=True)
+        #with self.appearing_in_thought(thread_id, thread_type):
+        for target in targets:
+            gift = self.ITEMS.get()
 
-                if gift is None:
-                    msg = f"I'm empty :("
-                    break
-                else: 
-                    msg = f"Bucket gave {target} {gift}."
+            if gift is None:
+                msg = f"I'm empty :("
+                break
+            else: 
+                msg = f"Bucket gave {target} {gift}."
                 
-                self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
         
 
     def respond_with_help_doc(self, message_object, thread_id, thread_type):
-        with open(HELP_PATH) as f:
-            helpText = json.load(f)
-
         specific = re.findall(self.HELP_PATTERN,message_object.text)[0]
         if specific != '':
-            msg = helpText[specific.lower()]
+            msg = self.HELP[specific.lower()]
         else:
-            msg = helpText['help']
-        
+            msg = self.HELP['help']
         
         self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
 
@@ -224,58 +265,51 @@ class Bucket(fbchat.Client):
     
     def add_to_message_history(self, message_object, thread_id):
         self.MESSAGE_HISTORY[thread_id].append(message_object.text)
-        if len(self.MESSAGE_HISTORY) > 3:
-            self.MESSAGE_HISTORY = self.MESSAGE_HISTORY[:-3] 
+        if len(self.MESSAGE_HISTORY[thread_id]) > 3:
+            self.MESSAGE_HISTORY[thread_id] = self.MESSAGE_HISTORY[thread_id][-3:] 
 
     def last_message_was_haiku(self, thread_id):
         haiku_test = [len(re.findall(r'([aeiouy])', msg, flags=re.IGNORECASE)) for msg in self.MESSAGE_HISTORY[thread_id]]
-        
+
         if haiku_test == [5,7,5]:
             return True
         else:
             return False
 
     def check_band_name(self, message_object, thread_id, thread_type):
-        message = re.split(r'\s', message_object.text)
-        if len(message) == 3 and message_object.text not in set(self.BANDS):
-            self.BANDS.append(message_object.text)
-            with open(BANDS_PATH,'w') as f:
-                 f.write(json.dumps(self.BANDS, indent=4))
+        bandName = re.findall(self.BAND_PATTERN, message_object.text)[0]
+        if not self.BANDS.has(bandName):
+            self.BANDS.add(bandName)
             if random.random() < self.BAND_NAME_PROB:
                 genre = self.KEYWORDS['\$GENRE'](None)
                 self.send(Message(text=f'{message_object.text} would be a good name for a {genre} band.'), thread_id=thread_id, thread_type=thread_type)
 
     def respond_to_message(self, message_object, thread_id, thread_type):
-        incoming_msg = re.sub(self.CLEAN_PATTERN, '', message_object.text)
+
+        match = self.RESPONSES.check(message_object.text)
         
-        matches = {}
-        for pattern, response in self.RESPONSES.items():
-            search = re.search(pattern, incoming_msg)
-            if search:
-                matches[pattern.pattern]=(response, search.groups())
-        
-        if len(matches) > 0:
-            bestMatch = matches[max(matches.keys(), key=len)]
-            response = bestMatch[0]
-            captures = bestMatch[1]
+        if match is not None:
+
+            trigger = match[0]
+            response = match[1]
+            captures = match[2]
 
             if isinstance(response, list):
                 response = random.choice(response)
 
-            for pattern, replacement in self.KEYWORDS.items():
-                if callable(replacement):
-                    for find in re.findall(pattern, response, flags=re.IGNORECASE):
-                        response = re.sub(pattern, replacement(find), response, count=1, flags=re.IGNORECASE)
+            for keyword, replace  in self.KEYWORDS.items():
+                if callable(replace):
+                    for find in re.findall(keyword, response, flags=re.IGNORECASE):
+                        response = re.sub(keyword, replace(find), response, count=1, flags=re.IGNORECASE)
                 else:
-                    response = re.sub(pattern, replacement, response, flags=re.IGNORECASE)
+                    response = re.sub(keyword, replace, response, flags=re.IGNORECASE)
 
                 for capture in captures:
                     response = re.sub(r"\$WORD",capture,response,count=1)
-            # Take out reply to id 
-            # reply_to_id=message_object.uid
+
             self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
-        
             return True
+        return False
            
     def onPeopleAdded(self, added_ids, author_id, thread_id):
         self.markAsRead(thread_id)
@@ -286,12 +320,10 @@ class Bucket(fbchat.Client):
         self.markAsRead(thread_id)
         self.respond_with_help_doc(Message(text='bucket help'), thread_id, thread_type)
 
-
     def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
 
         self.markAsDelivered(thread_id, message_object.uid)
         self.markAsRead(thread_id)
-        self.add_to_message_history(message_object, thread_id)
 
         USER = self.fetchUserInfo(author_id)[f'{author_id}']
 
@@ -314,8 +346,11 @@ class Bucket(fbchat.Client):
             "\$GENRE": lambda _: random.choice(self.wordLists['genre'])
         } 
 
+        messageHandled = True
+
         # Message handler 
         if author_id != self.uid:
+            self.add_to_message_history(message_object, thread_id)
             # Add and item
             if re.match(self.NEW_ITEM_PATTERN, message_object.text):
                 self.add_to_bucket(message_object, thread_id, thread_type)
@@ -341,10 +376,13 @@ class Bucket(fbchat.Client):
             elif self.last_message_was_haiku(thread_id):
                 self.MESSAGE_HISTORY[thread_id] = []
                 self.send(Message(text='Was that a haiku?'), thread_id=thread_id, thread_type=thread_type)
-            elif random.random() < self.RESPONSE_PROB:
-                self.respond_to_message(message_object, thread_id, thread_type)
+            else:
+                messageHandled = False
             
-            self.check_band_name(message_object, thread_id, thread_type)
+            if not messageHandled and random.random() < self.RESPONSE_PROB:
+                messageHandled = self.respond_to_message(message_object, thread_id, thread_type)
+            if not messageHandled and re.match(self.BAND_PATTERN, message_object.text):
+                self.check_band_name(message_object, thread_id, thread_type)
                 
 
 
