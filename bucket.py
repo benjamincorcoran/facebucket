@@ -138,7 +138,7 @@ class Bucket(fbchat.Client):
     def __init__(self, *args, **kwargs):
 
         # Bucket variables
-        self.RESPONSE_PROB = 0.8
+        self.RESPONSE_PROB = 1
         self.BAND_NAME_PROB = 0.2
         self.BUCKET_SIZE = 30
         self.MESSAGE_HISTORY = collections.defaultdict(list)
@@ -426,16 +426,11 @@ class Bucket(fbchat.Client):
         self.KEYWORDS = {
             r"\$USER": USER.first_name,
             r"\$RANDOM": lambda _: random.choice(ALLUSERS).first_name,
-            r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
-            r"\$NOUN": lambda _: random.choice(self.wordLists['noun']),
-            r"\$ADVERB": lambda _: random.choice(self.wordLists['adverb']),
-            r"\$ADJECTIVE": lambda _: random.choice(self.wordLists['adjective']),
-            r"\$VERB ": lambda _: random.choice(self.wordLists['verb'])[0],
-            r"\$VERBS": lambda _: random.choice(self.wordLists['verb'])[1],
-            r"\$VERBED": lambda _: random.choice(self.wordLists['verb'])[2],
-            r"\$VERBING": lambda _: random.choice(self.wordLists['verb'])[4],
-            r"\$GENRE": lambda _: random.choice(self.wordLists['genre'])
+            # r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
         }
+        for key in self.wordLists:
+            self.KEYWORDS[r'\$'+key.upper()] = lambda _, k=key: random.choice(self.wordLists[k])
+            self.KEYWORDS[r'\$(\w+)_'+key.upper()] = lambda s, k=key: random.choice([n for n in self.wordLists[k] if n[:len(s)]==s.lower()]+[''])
 
         messageHandled = True
 
