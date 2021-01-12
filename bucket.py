@@ -128,7 +128,7 @@ class Bucket(fbchat.Client):
     def __init__(self, *args, **kwargs):
 
         # Bucket variables
-        self.RESPONSE_PROB = 1
+        self.RESPONSE_PROB = 0.8
         self.BAND_NAME_PROB = 0.2
         self.BUCKET_SIZE = 30
         self.MESSAGE_HISTORY = collections.defaultdict(list)
@@ -270,7 +270,7 @@ class Bucket(fbchat.Client):
 
     def last_message_was_haiku(self, thread_id):
         haiku_test = [len(re.findall(r'([aeiouy])', msg, flags=re.IGNORECASE)) for msg in self.MESSAGE_HISTORY[thread_id]]
-        print(haiku_test)
+
         if haiku_test == [5,7,5]:
             return True
         else:
@@ -324,7 +324,6 @@ class Bucket(fbchat.Client):
 
         self.markAsDelivered(thread_id, message_object.uid)
         self.markAsRead(thread_id)
-        
 
         USER = self.fetchUserInfo(author_id)[f'{author_id}']
 
