@@ -379,6 +379,8 @@ class Bucket(fbchat.Client):
                 for capture in captures:
                     response = re.sub(r"\$WORD", capture, response, count=1)
 
+            response = re.sub(r'\b([a|A])\b(?=\s+[aeiouAEIOU])',r'\1n',response)
+
             self.send(
                 Message(
                     text=response),

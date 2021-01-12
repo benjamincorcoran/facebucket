@@ -50,10 +50,11 @@ def load_word_lists(path):
         # Verb dataset has whitespace seperated conjugations
         if fileName == 'verb':
             data = [re.split(r'\s+', verb) for verb in data if len(re.split(r'\s+', verb)) == 5]
-            wordLists['verb '] = [line[0] for line in data]
+            wordLists['verbing'] = [line[4] for line in data]
             wordLists['verbs'] = [line[1] for line in data]
             wordLists['verbed'] = [line[2] for line in data]
-            wordLists['verbing'] = [line[4] for line in data]
+            wordLists['verb'] = [line[0] for line in data]
+
         else:
             wordLists[fileName] = data
 
