@@ -59,5 +59,6 @@
     "bucket start a fight": "Hey $RANDOM, I heard $RANDOM say you were a $Adject $noun",
     "what does he do": "he $verbs",
     "what does she do": "she $verbs",
-    "what do they do": "they $verb"
+    "what do they do": "they $verb",
+    "casp": "$C_Verbing and $S_Adjective $P_Nouns"
 }

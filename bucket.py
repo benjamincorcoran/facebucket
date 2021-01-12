@@ -428,13 +428,17 @@ class Bucket(fbchat.Client):
         self.KEYWORDS = {
             r"\$USER": USER.first_name,
             r"\$RANDOM": lambda _: random.choice(ALLUSERS).first_name,
-            r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
+            #r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
         }
         for key in self.wordLists:
             self.KEYWORDS[r'\$'+key.upper()] = lambda _, k=key: random.choice(self.wordLists[k])
             self.KEYWORDS[r'\$(\w+)_'+key.upper()] = lambda s, k=key: random.choice([n for n in self.wordLists[k] if n[:len(s)]==s.lower()]+[''])
 
         messageHandled = True
+
+        for k,v in self.KEYWORDS.items():
+            if callable(v):
+                print(k, v('a'))
 
         # Message handler
         if author_id != self.uid:

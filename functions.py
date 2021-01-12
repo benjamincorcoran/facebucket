@@ -47,6 +47,11 @@ def load_word_lists(path):
         with open(path) as f:
             data = re.split('\n', f.read())
 
+        if fileName == 'noun':
+            data = [re.split(r',', noun) for noun in data if len(re.split(r',',noun)) == 2]
+            wordLists['nouns'] = [line[1] for line in data]
+            wordLists['noun'] = [line[0] for line in data]
+ 
         # Verb dataset has whitespace seperated conjugations
         if fileName == 'verb':
             data = [re.split(r'\s+', verb) for verb in data if len(re.split(r'\s+', verb)) == 5]
