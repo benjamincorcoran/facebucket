@@ -60,5 +60,6 @@
     "what does he do": "he $verbs",
     "what does she do": "she $verbs",
     "what do they do": "they $verb",
-    "casp": "$C_Verbing and $S_Adjective $P_Nouns"
+    "casp": "$C_Verbing and $S_Adjective $P_Nouns",
+    "test": "$a_noun"
 }

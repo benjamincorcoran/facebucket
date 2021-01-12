@@ -436,10 +436,6 @@ class Bucket(fbchat.Client):
 
         messageHandled = True
 
-        for k,v in self.KEYWORDS.items():
-            if callable(v):
-                print(k, v('a'))
-
         # Message handler
         if author_id != self.uid:
             self.add_to_message_history(message_object, thread_id)
