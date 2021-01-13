@@ -141,7 +141,11 @@ class Bucket(fbchat.Client):
         self.RESPONSE_PROB = 1
         self.BAND_NAME_PROB = 0.2
         self.BUCKET_SIZE = 30
-        self.MESSAGE_HISTORY = collections.defaultdict(list)
+        self.HISTORY = {
+            'message': collections.defaultdict(lambda :['']),
+            'sent':collections.defaultdict(lambda :[''])
+        }
+
         self.KEYWORDS = None
 
         # Load session data
@@ -323,14 +327,17 @@ class Bucket(fbchat.Client):
         time.sleep(minutes * 60)
         self.listen()
 
-    def add_to_message_history(self, message_object, thread_id):
-        self.MESSAGE_HISTORY[thread_id].append(message_object.text)
-        if len(self.MESSAGE_HISTORY[thread_id]) > 3:
-            self.MESSAGE_HISTORY[thread_id] = self.MESSAGE_HISTORY[thread_id][-3:]
+    def add_to_message_history(self, message_object, thread_id, k='message'):
+        self.HISTORY[k][thread_id].append(message_object.text)
+        if len(self.HISTORY[k][thread_id]) > 3:
+            self.HISTORY[k][thread_id] = self.HISTORY[k][thread_id][-3:]
+    
+    def add_to_sent_history(self, message_object, thread_id):
+        self.add_to_message_history(message_object, thread_id, k='sent')
 
     def last_message_was_haiku(self, thread_id):
         haiku_test = [len(re.findall(r'([aeiouy])', msg, flags=re.IGNORECASE))
-                      for msg in self.MESSAGE_HISTORY[thread_id]]
+                      for msg in self.HISTORY['message'][thread_id]]
 
         if haiku_test == [5, 7, 5]:
             return True
@@ -381,11 +388,9 @@ class Bucket(fbchat.Client):
 
             response = re.sub(r'\b([a|A])\b(?=\s+[aeiouAEIOU])',r'\1n',response)
 
-            self.send(
-                Message(
-                    text=response),
-                thread_id=thread_id,
-                thread_type=thread_type)
+            if response != self.HISTORY['sent'][thread_id][-1]:
+                self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
+                self.add_to_sent_history(Message(text=response), thread_id)
             return True
         return False
 
