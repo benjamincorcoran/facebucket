@@ -391,7 +391,8 @@ class Bucket(fbchat.Client):
             if response != self.HISTORY['sent'][thread_id][-1]:
                 self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
                 self.add_to_sent_history(Message(text=response), thread_id)
-            return True
+                return True
+        
         return False
 
     def onPeopleAdded(self, added_ids, author_id, thread_id):
