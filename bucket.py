@@ -7,6 +7,9 @@ import collections
 import time
 import contextlib
 import collections
+import pycron
+import cron_descriptor as cd
+import datetime
 
 from fbchat import log, Client
 from fbchat import Message, User, ThreadType, ThreadLocation
@@ -106,13 +109,16 @@ class Responder(object):
 
     def add(self, trigger, response):
         self.rawResponses[trigger.lower()] = response
-        self.RESPONSES[self.parse(trigger.lower())] = response
-        self.save()
-
-    def remove(self, trigger):
-        del self.rawResponses[trigger.lower()]
         self.save()
         self.load()
+
+    def remove(self, trigger):
+        try:
+            del self.rawResponses[trigger.lower()]
+            self.save()
+            self.load()
+        except KeyError:
+            pass
 
     def save(self):
         with open(self.path, 'w') as f:
@@ -130,6 +136,33 @@ class Responder(object):
             return max(matches, key=lambda x: len(x[0].pattern))
         else:
             return None
+
+class TimedResponder(Responder):
+
+    def parse(self, text):
+        return text
+
+    def check(self, time):
+        matches = []
+        for thread_id, threadTimers in self.RESPONSES.items():
+            for trigger, [thread_type, response] in threadTimers.items():
+                if pycron.is_now(trigger):
+                    matches.append([thread_id, thread_type, response])
+        
+        if len(matches) > 0:
+            return matches
+        else:
+            return None
+
+    def add(self, thread_id, trigger, response):
+        self.rawResponses[thread_id][trigger.lower()] = response
+        self.save()
+        self.load()
+    
+    def remove(self, thread_id, trigger):  
+        self.rawResponses[thread_id] = {k:[t,v] for k,[t,v] in self.rawResponses[thread_id].items() if v.lower() != trigger.lower()}
+        self.save()
+        self.load()
 
 
 # Subclass fbchat.Client and override required methods
@@ -160,10 +193,14 @@ class Bucket(fbchat.Client):
             './assets/data/ITEMS.json', self.BUCKET_SIZE)
         self.RESPONSES = Responder('./assets/data/RESPONSES.json')
         self.BANDS = Inventory('./assets/data/BANDS.json')
+        self.TIMERS = TimedResponder('./assets/data/TIMERS.json')
         self.HELP = data['HELP']
 
         # Load wordLists
         self.wordLists = load_word_lists('./assets/wordlists')
+
+        # Set up minute started
+        self.lastCheckTime = datetime.datetime.utcnow()
 
         super(
             Bucket,
@@ -173,21 +210,15 @@ class Bucket(fbchat.Client):
             session_cookies=self.SESSION_COOKIES)
 
         # Patterns
-        self.NEW_RESPONSE_PATTERN = re.compile(
-            r'if (.*) then (.*)', flags=re.IGNORECASE + re.DOTALL)
-        self.NEW_CHOICE_PATTERN = re.compile(
-            r'if (.*) choose (.*)', flags=re.IGNORECASE + re.DOTALL)
-        self.DELETE_RESPONSE_PATTERN = re.compile(
-            r'bucket no more (.*)', flags=re.IGNORECASE + re.DOTALL)
-        self.NEW_ITEM_PATTERN = re.compile(
-            r'give bucket (.*)', flags=re.IGNORECASE + re.DOTALL)
-        self.GIVE_ITEM_PATTERN = re.compile(
-            r'bucket give (\w+) a present', flags=re.IGNORECASE)
+        self.NEW_RESPONSE_PATTERN = re.compile(r'if (.*) then (.*)', flags=re.IGNORECASE + re.DOTALL)
+        self.NEW_CHOICE_PATTERN = re.compile(r'if (.*) choose (.*)', flags=re.IGNORECASE + re.DOTALL)
+        self.DELETE_RESPONSE_PATTERN = re.compile(r'bucket no more (.*)', flags=re.IGNORECASE + re.DOTALL)
+        self.NEW_ITEM_PATTERN = re.compile(r'give bucket (.*)', flags=re.IGNORECASE + re.DOTALL)
+        self.GIVE_ITEM_PATTERN = re.compile(r'bucket give (\w+) a present', flags=re.IGNORECASE)
         self.BAND_PATTERN = re.compile(r'^\w+\s\w+\s\w+$', flags=re.IGNORECASE)
-        self.HELP_PATTERN = re.compile(
-            r'bucket help ?(.*)?', flags=re.IGNORECASE)
-        self.QUIET_PATTERN = re.compile(
-            r'bucket shut up (\d+)', flags=re.IGNORECASE)
+        self.TIMER_PATTERN = re.compile(r'bucket ((?:(?:\d+|\*)\s){4}(?:(?:\d+|\*)))\s(.*)')
+        self.HELP_PATTERN = re.compile(r'bucket help ?(.*)?', flags=re.IGNORECASE)
+        self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
 
     # @contextlib.contextmanager
     # def appearing_in_thought(self, thread_id, thread_type):
@@ -196,6 +227,36 @@ class Bucket(fbchat.Client):
     #     time.sleep(int(random.random()*2))
     #     yield None
     #     self.setTypingStatus(fbchat.TypingStatus(0), thread_id=thread_id, thread_type=thread_type)
+
+    def listen(self, markAlive=None):
+        """Initialize and runs the listening loop continually.
+
+        Args:
+            markAlive (bool): Whether this should ping the Facebook server each time the loop runs
+        """
+        if markAlive is not None:
+            self.setActiveStatus(markAlive)
+
+        self.startListening()
+        self.onListening()
+
+        while self.listening and self.doOneListen():
+            if self.lastCheckTime.minute != datetime.datetime.utcnow().minute:
+                self.lastCheckTime = datetime.datetime.utcnow()
+
+                timedMessages = self.TIMERS.check(self.lastCheckTime)
+                if timedMessages is not None:
+                    for thread_id, thread_type, response in timedMessages:
+
+                        if thread_type == 'GROUP':
+                            thread_type = ThreadType.GROUP
+                        else:
+                            thread_type = ThreadType.USER
+
+                        self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
+
+        self.stopListening()
+
 
     def add_to_responses(
             self,
@@ -236,7 +297,10 @@ class Bucket(fbchat.Client):
         trigger = re.findall(
             self.DELETE_RESPONSE_PATTERN,
             message_object.text)[0]
+
         self.RESPONSES.remove(trigger)
+        self.TIMERS.remove(thread_id, trigger)
+ 
 
         msg = f"Okay, I wont respond to '{trigger}' anymore :)"
         self.send(
@@ -295,6 +359,24 @@ class Bucket(fbchat.Client):
                     text=msg),
                 thread_id=thread_id,
                 thread_type=thread_type)
+
+    def add_new_timer(self, message_object, thread_id, thread_type):
+        
+        user = self.KEYWORDS[r'\$USER']
+        
+        capture = re.findall(self.TIMER_PATTERN, message_object.text)[0]
+
+        if thread_type == ThreadType.GROUP:
+            ttype = 'GROUP'
+        else:
+            ttype = 'USER'
+        
+        self.TIMERS.add(thread_id, capture[0], [ttype, capture[1]])
+
+        engCron = cd.get_description(capture[0])
+        msg = f"Okay {user}. I'll say '{capture[1]}' {engCron.lower()}"
+
+        self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
 
     def respond_with_help_doc(self, message_object, thread_id, thread_type):
         specific = re.findall(self.HELP_PATTERN, message_object.text)[0]
@@ -437,6 +519,7 @@ class Bucket(fbchat.Client):
             r"\$RANDOM": lambda _: random.choice(ALLUSERS).first_name,
             r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
         }
+
         for key in self.wordLists:
             self.KEYWORDS[r'\$'+key.upper()] = lambda _, k=key: random.choice(self.wordLists[k])
             self.KEYWORDS[r'\$(\w+)_'+key.upper()] = lambda s, k=key: random.choice([n for n in self.wordLists[k] if n[:len(s)]==s.lower()]+[''])
@@ -476,6 +559,8 @@ class Bucket(fbchat.Client):
             # Look for quiet command
             elif re.match(self.QUIET_PATTERN, message_object.text):
                 self.global_quiet(message_object, thread_id, thread_type)
+            elif re.match(self.TIMER_PATTERN, message_object.text):
+                self.add_new_timer(message_object, thread_id, thread_type)
             # Look for a reponse
             elif self.last_message_was_haiku(thread_id):
                 self.MESSAGE_HISTORY[thread_id] = []

@@ -61,5 +61,6 @@
     "what does she do": "she $verbs",
     "what do they do": "they $verb",
     "casp": "$C_Verbing and $S_Adjective $P_Nouns",
-    "test": "$a_noun"
+    "test": "$a_noun",
+    "wanted": "WANTED: \n\n         \ud83e\udd20\n$RANDOM-y the Kid\n\nCRIME: $Verbing the $nouns\n\nREWARD: $ $RAND1000\n\nReport suspicious activity to Sheriff Bucket"
 }
