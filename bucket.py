@@ -155,6 +155,9 @@ class TimedResponder(Responder):
             return None
 
     def add(self, thread_id, trigger, response):
+        if thread_id not in self.rawResponses.keys():
+            self.rawResponses[thread_id] = {}
+
         self.rawResponses[thread_id][trigger.lower()] = response
         self.save()
         self.load()
@@ -216,7 +219,7 @@ class Bucket(fbchat.Client):
         self.NEW_ITEM_PATTERN = re.compile(r'give bucket (.*)', flags=re.IGNORECASE + re.DOTALL)
         self.GIVE_ITEM_PATTERN = re.compile(r'bucket give (\w+) a present', flags=re.IGNORECASE)
         self.BAND_PATTERN = re.compile(r'^\w+\s\w+\s\w+$', flags=re.IGNORECASE)
-        self.TIMER_PATTERN = re.compile(r'bucket ((?:(?:\d+|\*)\s){4}(?:(?:\d+|\*)))\s(.*)')
+        self.TIMER_PATTERN = re.compile(r'bucket ((?:(?:\d+(?:\/\d+)?|\*(?:\/\d+)?)\s){4}(?:(?:\d+|\*)))\s(.*)', flags=re.IGNORECASE + re.DOTALL)
         self.HELP_PATTERN = re.compile(r'bucket help ?(.*)?', flags=re.IGNORECASE)
         self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
 
@@ -559,6 +562,7 @@ class Bucket(fbchat.Client):
             # Look for quiet command
             elif re.match(self.QUIET_PATTERN, message_object.text):
                 self.global_quiet(message_object, thread_id, thread_type)
+            # Look for a new timer 
             elif re.match(self.TIMER_PATTERN, message_object.text):
                 self.add_new_timer(message_object, thread_id, thread_type)
             # Look for a reponse
