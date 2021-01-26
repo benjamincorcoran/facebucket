@@ -219,7 +219,7 @@ class Bucket(fbchat.Client):
         self.NEW_ITEM_PATTERN = re.compile(r'give bucket (.*)', flags=re.IGNORECASE + re.DOTALL)
         self.GIVE_ITEM_PATTERN = re.compile(r'bucket give (\w+) a present', flags=re.IGNORECASE)
         self.BAND_PATTERN = re.compile(r'^\w+\s\w+\s\w+$', flags=re.IGNORECASE)
-        self.TIMER_PATTERN = re.compile(r'bucket ((?:(?:\d+(?:\/\d+)?|\*(?:\/\d+)?)\s){4}(?:(?:\d+|\*)))\s(.*)', flags=re.IGNORECASE + re.DOTALL)
+        self.TIMER_PATTERN = re.compile('bucket ((?:(?:(?:\d+,)+\d+|(?:\d+(?:\/|-)\d+)|(?:\*(?:\/|-)\d+)|\d+|\*) ?){5,7})\s(.*)', flags=re.IGNORECASE + re.DOTALL)
         self.HELP_PATTERN = re.compile(r'bucket help ?(.*)?', flags=re.IGNORECASE)
         self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
 
@@ -255,6 +255,10 @@ class Bucket(fbchat.Client):
                             thread_type = ThreadType.GROUP
                         else:
                             thread_type = ThreadType.USER
+
+                        response = self.apply_keywords(response)
+                        response = re.sub(r'\b([aA])\b(?=\s+[aeiouAEIOU])',r'\1n',response)
+                        response = re.sub(r'\b([aA][nN])\b(?=\s+[^aeiouAEIOU])',r'a',response)
 
                         self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
 
@@ -329,6 +333,22 @@ class Bucket(fbchat.Client):
                 text=msg),
             thread_id=thread_id,
             thread_type=thread_type)
+
+    def apply_keywords(self, response):
+        for keyword, replace in self.KEYWORDS.items():
+            if callable(replace):
+                for find in re.findall(
+                        keyword, response, flags=re.IGNORECASE):
+                    response = re.sub(
+                        keyword,
+                        replace(find),
+                        response,
+                        count=1,
+                        flags=re.IGNORECASE)
+            else:
+                response = re.sub(
+                    keyword, replace, response, flags=re.IGNORECASE)
+        return response
 
     def give_item_to(self, message_object, thread_id, thread_type):
 
@@ -454,22 +474,10 @@ class Bucket(fbchat.Client):
             if isinstance(response, list):
                 response = random.choice(response)
 
-            for keyword, replace in self.KEYWORDS.items():
-                if callable(replace):
-                    for find in re.findall(
-                            keyword, response, flags=re.IGNORECASE):
-                        response = re.sub(
-                            keyword,
-                            replace(find),
-                            response,
-                            count=1,
-                            flags=re.IGNORECASE)
-                else:
-                    response = re.sub(
-                        keyword, replace, response, flags=re.IGNORECASE)
+            response = self.apply_keywords(response)
 
-                for capture in captures:
-                    response = re.sub(r"\$WORD", capture, response, count=1)
+            for capture in captures:
+                response = re.sub(r"\$WORD", capture, response, count=1)
 
             response = re.sub(r'\b([aA])\b(?=\s+[aeiouAEIOU])',r'\1n',response)
             response = re.sub(r'\b([aA][nN])\b(?=\s+[^aeiouAEIOU])',r'a',response)
