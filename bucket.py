@@ -26,13 +26,14 @@ SESSION_PATH = './assets/SESSION.pickle'
 class Inventory(object):
 
     def __init__(self, path):
-
+        
         self.path = path
+        
         with open(self.path, 'r') as f:
             self.ITEMS = json.load(f)
 
     def add(self, item):
-        self.ITEMS.append(item)
+        self.ITEMS.append(self.clean(item))
         self.save()
 
     def get(self):
@@ -43,8 +44,12 @@ class Inventory(object):
         self.save()
         return item
 
+    def clean(self, text):
+        CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s\$;]')
+        return re.sub(CLEAN_PATTERN, '', text).lower()
+
     def has(self, item):
-        if item in set(self.ITEMS):
+        if self.clean(item) in set(self.ITEMS):
             return True
         else:
             return False
@@ -218,7 +223,7 @@ class Bucket(fbchat.Client):
         self.DELETE_RESPONSE_PATTERN = re.compile(r'bucket no more (.*)', flags=re.IGNORECASE + re.DOTALL)
         self.NEW_ITEM_PATTERN = re.compile(r'give bucket (.*)', flags=re.IGNORECASE + re.DOTALL)
         self.GIVE_ITEM_PATTERN = re.compile(r'bucket give (\w+) a present', flags=re.IGNORECASE)
-        self.BAND_PATTERN = re.compile(r'^\w+\s\w+\s\w+$', flags=re.IGNORECASE)
+        self.BAND_PATTERN = re.compile(r'^[^\s]+\s[^\s]+\s[^\s]+$', flags=re.IGNORECASE)
         self.TIMER_PATTERN = re.compile('bucket ((?:(?:(?:\d+,)+\d+|(?:\d+(?:\/|-)\d+)|(?:\*(?:\/|-)\d+)|\d+|\*) ?){5,7})\s(.*)', flags=re.IGNORECASE + re.DOTALL)
         self.HELP_PATTERN = re.compile(r'bucket help ?(.*)?', flags=re.IGNORECASE)
         self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
