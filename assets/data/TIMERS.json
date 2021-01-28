@@ -1,9 +1,5 @@
 {
     "1556937641080368": {
-        "0 10 26 1 *": [
-            "GROUP",
-            "Happy Australia Day everyone!"
-        ],
         "0 10 5 1 *": [
             "GROUP",
             "Happy National Bird Day everyone!"
@@ -38,7 +34,7 @@
         ],
         "0 10 14 3 *": [
             "GROUP",
-            "Happy International Day of Action for Rivers everyone!"
+            "Happy Mother's Day everyone!"
         ],
         "0 10 15 3 *": [
             "GROUP",
@@ -347,6 +343,822 @@
         "0 10 14 12 *": [
             "GROUP",
             "Happy Monkey Day everyone!"
+        ],
+        "0 10 1 1 *": [
+            "GROUP",
+            "Happy Polar Bear Swim Day everyone!"
+        ],
+        "0 10 2 1 *": [
+            "GROUP",
+            "Happy National Science Fiction Day everyone!"
+        ],
+        "0 10 4 1 *": [
+            "GROUP",
+            "Happy World Braille Day everyone!"
+        ],
+        "0 10 7 1 *": [
+            "GROUP",
+            "Happy Distaff Day everyone!"
+        ],
+        "0 10 9 1 *": [
+            "GROUP",
+            "Happy Pravasi Bharatiya Divas everyone!"
+        ],
+        "0 10 11 1 *": [
+            "GROUP",
+            "Happy National Human Trafficking Awareness Day everyone!"
+        ],
+        "0 10 12 1 *": [
+            "GROUP",
+            "Happy National Youth Day National Vision Board Day everyone!"
+        ],
+        "0 10 14 1 *": [
+            "GROUP",
+            "Happy World Logic Day everyone!"
+        ],
+        "0 10 15 1 *": [
+            "GROUP",
+            "Happy Indian Army Day everyone!"
+        ],
+        "0 10 16 1 *": [
+            "GROUP",
+            "Happy National Religious Freedom Day everyone!"
+        ],
+        "0 10 21 1 *": [
+            "GROUP",
+            "Happy National Hugging Day everyone!"
+        ],
+        "0 10 24 1 *": [
+            "GROUP",
+            "Happy Moebius Syndrome Awareness Day everyone!"
+        ],
+        "0 10 25 1 *": [
+            "GROUP",
+            "Happy National Voters' Day everyone!"
+        ],
+        "0 10 26 1 *": [
+            "GROUP",
+            "Happy Australia Day everyone!"
+        ],
+        "0 10 27 1 *": [
+            "GROUP",
+            "Happy International Holocaust Remembrance Day everyone!"
+        ],
+        "8 11 28 1 *": [
+            "GROUP",
+            "Happy Data Privacy Day a.k.a. Data Protection Day everyone!"
+        ],
+        "0 10 30 1 *": [
+            "GROUP",
+            "Happy CTE Awareness Day everyone!"
+        ],
+        "0 10 1 2 *": [
+            "GROUP",
+            "Happy Imbolc everyone!"
+        ],
+        "0 10 4 2 *": [
+            "GROUP",
+            "Happy Sri Lankan Independence Day everyone!"
+        ],
+        "0 10 5 2 *": [
+            "GROUP",
+            "Happy Kashmir Solidarity Day everyone!"
+        ],
+        "0 10 6 2 *": [
+            "GROUP",
+            "Happy Sami National Day everyone!"
+        ],
+        "0 10 10 2 *": [
+            "GROUP",
+            "Happy World Pulses Day everyone!"
+        ],
+        "0 10 11 2 *": [
+            "GROUP",
+            "Happy European 112 Day everyone!"
+        ],
+        "0 10 12 2 *": [
+            "GROUP",
+            "Happy Sexual and Reproductive Health Awareness Day everyone!"
+        ],
+        "0 10 13 2 *": [
+            "GROUP",
+            "Happy World Radio Day everyone!"
+        ],
+        "0 10 17 2 *": [
+            "GROUP",
+            "Happy Random Acts of Kindness Day everyone!"
+        ],
+        "0 10 20 2 *": [
+            "GROUP",
+            "Happy World Day of Social Justice everyone!"
+        ],
+        "0 10 21 2 *": [
+            "GROUP",
+            "Happy International Mother Language Day everyone!"
+        ],
+        "0 10 22 2 *": [
+            "GROUP",
+            "Happy Founders Day everyone!"
+        ],
+        "0 10 1 3 *": [
+            "GROUP",
+            "Happy World Civil Defence Day everyone!"
+        ],
+        "0 10 2 3 *": [
+            "GROUP",
+            "Happy Employee Appreciation Day everyone!"
+        ],
+        "0 10 5 3 *": [
+            "GROUP",
+            "Happy Dissociative Identity Disorder Awareness Day everyone!"
+        ],
+        "0 10 8 3 *": [
+            "GROUP",
+            "Happy International Women's Day everyone!"
+        ],
+        "0 10 10 3 *": [
+            "GROUP",
+            "Happy National Women and Girl's HIV/AIDS Awareness Day everyone!"
+        ],
+        "0 10 11 3 *": [
+            "GROUP",
+            "Happy National Singles Day and Solo Poly Day everyone!"
+        ],
+        "0 10 12 3 *": [
+            "GROUP",
+            "Happy World Glaucoma Day everyone!"
+        ],
+        "0 10 24 3 *": [
+            "GROUP",
+            "Happy World Tuberculosis Day everyone!"
+        ],
+        "0 10 25 3 *": [
+            "GROUP",
+            "Happy International Day of Remembrance of the Victims of Slavery and the Transatlantic Slave Trade everyone!"
+        ],
+        "0 10 26 3 *": [
+            "GROUP",
+            "Happy Bangladesh Independence Day everyone!"
+        ],
+        "0 10 27 3 *": [
+            "GROUP",
+            "Happy World Theatre Day everyone!"
+        ],
+        "0 10 30 3 *": [
+            "GROUP",
+            "Happy World Bipolar Day everyone!"
+        ],
+        "0 10 31 3 *": [
+            "GROUP",
+            "Happy International Drug Checking Day everyone!"
+        ],
+        "0 13 1 4 *": [
+            "GROUP",
+            "Happy April Fools' Day everyone!"
+        ],
+        "0 10 2 4 *": [
+            "GROUP",
+            "Happy World Autism Awareness Day everyone!"
+        ],
+        "0 10 5 4 *": [
+            "GROUP",
+            "Happy National Maritime Day everyone!"
+        ],
+        "0 10 6 4 *": [
+            "GROUP",
+            "Happy International Day of Sport for Development and Peace everyone!"
+        ],
+        "0 10 11 4 *": [
+            "GROUP",
+            "Happy International Louie Louie Day everyone!"
+        ],
+        "0 10 12 4 *": [
+            "GROUP",
+            "Happy Equal Pay Day everyone!"
+        ],
+        "0 10 13 4 *": [
+            "GROUP",
+            "Happy FND Awareness Day everyone!"
+        ],
+        "0 10 14 4 *": [
+            "GROUP",
+            "Happy Black Day everyone!"
+        ],
+        "0 10 15 4 *": [
+            "GROUP",
+            "Happy Day of Dialogue everyone!"
+        ],
+        "0 10 16 4 *": [
+            "GROUP",
+            "Happy National Healthcare Decisions Day everyone!"
+        ],
+        "0 10 18 4 *": [
+            "GROUP",
+            "Happy International Day For Monuments and Sites everyone!"
+        ],
+        "0 10 19 4 *": [
+            "GROUP",
+            "Happy Bicycle Day everyone!"
+        ],
+        "0 10 20 4 *": [
+            "GROUP",
+            "Happy 420: international day for cannabis-related protests and events everyone!"
+        ],
+        "0 10 21 4 *": [
+            "GROUP",
+            "Happy Day of Silence everyone!"
+        ],
+        "0 10 23 4 *": [
+            "GROUP",
+            "Happy World Book and Copyright Day everyone!"
+        ],
+        "0 10 24 4 *": [
+            "GROUP",
+            "Happy Armenian Genocide Remembrance Day everyone!"
+        ],
+        "0 10 25 4 *": [
+            "GROUP",
+            "Happy DNA day everyone!"
+        ],
+        "0 10 26 4 *": [
+            "GROUP",
+            "Happy World Intellectual Property Day everyone!"
+        ],
+        "0 10 28 4 *": [
+            "GROUP",
+            "Happy World Day for Safety and Health at Work everyone!"
+        ],
+        "0 10 30 4 *": [
+            "GROUP",
+            "Happy International Jazz Day everyone!"
+        ],
+        "0 10 1 5 *": [
+            "GROUP",
+            "Happy May Day everyone!"
+        ],
+        "0 10 5 5 *": [
+            "GROUP",
+            "Happy International Midwives Day everyone!"
+        ],
+        "0 10 6 5 *": [
+            "GROUP",
+            "Happy International No Diet Day everyone!"
+        ],
+        "0 10 7 5 *": [
+            "GROUP",
+            "Happy World Password Day everyone!"
+        ],
+        "0 10 9 5 *": [
+            "GROUP",
+            "Happy Europe Day everyone!"
+        ],
+        "0 10 10 5 *": [
+            "GROUP",
+            "Happy International Migratory Bird Day everyone!"
+        ],
+        "0 10 11 5 *": [
+            "GROUP",
+            "Happy Military Spouse Day everyone!"
+        ],
+        "0 10 12 5 *": [
+            "GROUP",
+            "Happy International Nurses Day everyone!"
+        ],
+        "0 10 15 5 *": [
+            "GROUP",
+            "Happy International Day of Families everyone!"
+        ],
+        "0 10 16 5 *": [
+            "GROUP",
+            "Happy International Day of Light everyone!"
+        ],
+        "0 10 17 5 *": [
+            "GROUP",
+            "Happy Shades Day everyone!"
+        ],
+        "0 10 18 5 *": [
+            "GROUP",
+            "Happy World AIDS Vaccine Day everyone!"
+        ],
+        "0 10 19 5 *": [
+            "GROUP",
+            "Happy World Inflammatory Bowel Disease Day everyone!"
+        ],
+        "0 10 21 5 *": [
+            "GROUP",
+            "Happy World Day for Cultural Diversity for Dialogue and Development everyone!"
+        ],
+        "0 10 25 5 *": [
+            "GROUP",
+            "Happy Geek Pride Day everyone!"
+        ],
+        "0 10 26 5 *": [
+            "GROUP",
+            "Happy National Paper Airplane Day everyone!"
+        ],
+        "0 10 28 5 *": [
+            "GROUP",
+            "Happy Menstrual Hygiene Day everyone!"
+        ],
+        "0 10 29 5 *": [
+            "GROUP",
+            "Happy International Day of UN Peacekeepers everyone!"
+        ],
+        "0 10 2 6 *": [
+            "GROUP",
+            "Happy International Whores' Day everyone!"
+        ],
+        "0 10 3 6 *": [
+            "GROUP",
+            "Happy World Bicycle Day everyone!"
+        ],
+        "0 10 4 6 *": [
+            "GROUP",
+            "Happy International Day of Innocent Children Victims of Aggression everyone!"
+        ],
+        "0 10 6 6 *": [
+            "GROUP",
+            "Happy D-Day everyone!"
+        ],
+        "0 10 7 6 *": [
+            "GROUP",
+            "Happy World Swift Day everyone!"
+        ],
+        "0 10 10 6 *": [
+            "GROUP",
+            "Happy Portugal Day everyone!"
+        ],
+        "0 10 13 6 *": [
+            "GROUP",
+            "Happy International Albinism Awareness Day everyone!"
+        ],
+        "0 10 14 6 *": [
+            "GROUP",
+            "Happy World Blood Donor Day everyone!"
+        ],
+        "0 10 18 6 *": [
+            "GROUP",
+            "Happy Autistic Pride Day everyone!"
+        ],
+        "0 10 19 6 *": [
+            "GROUP",
+            "Happy World Sickle Cell Day everyone!"
+        ],
+        "0 10 20 6 *": [
+            "GROUP",
+            "Happy World Refugee Day everyone!"
+        ],
+        "0 10 23 6 *": [
+            "GROUP",
+            "Happy International Widow's Day everyone!"
+        ],
+        "0 10 24 6 *": [
+            "GROUP",
+            "Happy Take Your Dog to Work Day everyone!"
+        ],
+        "0 10 25 6 *": [
+            "GROUP",
+            "Happy World Vitiligo Day everyone!"
+        ],
+        "0 10 26 6 *": [
+            "GROUP",
+            "Happy International Day against Drug Abuse and Illicit Trafficking everyone!"
+        ],
+        "0 10 27 6 *": [
+            "GROUP",
+            "Happy National PTSD Awareness Day everyone!"
+        ],
+        "0 10 28 6 *": [
+            "GROUP",
+            "Happy Tau Day everyone!"
+        ],
+        "0 10 30 6 *": [
+            "GROUP",
+            "Happy United Nations International Asteroid Day raises public awareness of the asteroid impact hazard everyone!"
+        ],
+        "0 10 1 7 *": [
+            "GROUP",
+            "Happy Somalia Independence Day everyone!"
+        ],
+        "0 10 2 7 *": [
+            "GROUP",
+            "Happy World UFO Day everyone!"
+        ],
+        "0 10 4 7 *": [
+            "GROUP",
+            "Happy Independence Day everyone!"
+        ],
+        "0 10 5 7 *": [
+            "GROUP",
+            "Happy X-Day everyone!"
+        ],
+        "0 10 6 7 *": [
+            "GROUP",
+            "Happy National Fried Chicken Day everyone!"
+        ],
+        "0 10 7 7 *": [
+            "GROUP",
+            "Happy World Chocolate Day everyone!"
+        ],
+        "0 10 12 7 *": [
+            "GROUP",
+            "Happy Malala Day everyone!"
+        ],
+        "0 10 15 7 *": [
+            "GROUP",
+            "Happy World Youth Skills Day everyone!"
+        ],
+        "0 10 17 7 *": [
+            "GROUP",
+            "Happy World Day for International Justice everyone!"
+        ],
+        "0 10 18 7 *": [
+            "GROUP",
+            "Happy Nelson Mandela International Day everyone!"
+        ],
+        "0 10 20 7 *": [
+            "GROUP",
+            "Happy International Chess Day everyone!"
+        ],
+        "0 10 21 7 *": [
+            "GROUP",
+            "Happy Belgian National Day everyone!"
+        ],
+        "0 10 22 7 *": [
+            "GROUP",
+            "Happy Pi Approximation Day everyone!"
+        ],
+        "0 10 25 7 *": [
+            "GROUP",
+            "Happy Christmas in July everyone!"
+        ],
+        "0 10 26 7 *": [
+            "GROUP",
+            "Happy International Day for the Conservation of the Mangrove Ecosystem everyone!"
+        ],
+        "0 10 30 7 *": [
+            "GROUP",
+            "Happy International Day of Friendship everyone!"
+        ],
+        "0 10 1 8 *": [
+            "GROUP",
+            "Happy Emancipation Day everyone!"
+        ],
+        "0 10 6 8 *": [
+            "GROUP",
+            "Happy Independence Day everyone!"
+        ],
+        "0 10 8 8 *": [
+            "GROUP",
+            "Happy International Cat Day everyone!"
+        ],
+        "0 10 9 8 *": [
+            "GROUP",
+            "Happy National Day everyone!"
+        ],
+        "0 10 14 8 *": [
+            "GROUP",
+            "Happy World Lizard Day everyone!"
+        ],
+        "0 10 16 8 *": [
+            "GROUP",
+            "Happy Bennington Battle Day everyone!"
+        ],
+        "0 10 17 8 *": [
+            "GROUP",
+            "Happy Indonesian Independence Day everyone!"
+        ],
+        "0 10 20 8 *": [
+            "GROUP",
+            "Happy World Mosquito Day everyone!"
+        ],
+        "0 10 21 8 *": [
+            "GROUP",
+            "Happy World Senior Citizens Day everyone!"
+        ],
+        "0 10 23 8 *": [
+            "GROUP",
+            "Happy International Day for the Remembrance of the Slave Trade and its Abolition everyone!"
+        ],
+        "0 10 25 8 *": [
+            "GROUP",
+            "Happy Christmas in August everyone!"
+        ],
+        "0 10 29 8 *": [
+            "GROUP",
+            "Happy International Day against Nuclear Tests everyone!"
+        ],
+        "0 10 31 8 *": [
+            "GROUP",
+            "Happy Hari Merdeka everyone!"
+        ],
+        "0 10 2 9 *": [
+            "GROUP",
+            "Happy Victory over Japan Day everyone!"
+        ],
+        "0 10 3 9 *": [
+            "GROUP",
+            "Happy Skyscraper Day everyone!"
+        ],
+        "0 10 4 9 *": [
+            "GROUP",
+            "Happy National Finnish Food Day everyone!"
+        ],
+        "0 10 6 9 *": [
+            "GROUP",
+            "Happy Defense Day everyone!"
+        ],
+        "0 10 7 9 *": [
+            "GROUP",
+            "Happy Brazilian Independence Day everyone!"
+        ],
+        "0 10 8 9 *": [
+            "GROUP",
+            "Happy World Physical Therapy Day everyone!"
+        ],
+        "0 10 9 9 *": [
+            "GROUP",
+            "Happy International Fetal Alcohol Spectrum Disorder Awareness Day everyone!"
+        ],
+        "0 10 10 9 *": [
+            "GROUP",
+            "Happy World Suicide Prevention Day everyone!"
+        ],
+        "0 10 11 9 *": [
+            "GROUP",
+            "Happy Patriot Day everyone!"
+        ],
+        "0 10 12 9 *": [
+            "GROUP",
+            "Happy ATSEP Day everyone!"
+        ],
+        "0 10 13 9 *": [
+            "GROUP",
+            "Happy RUOK? Day everyone!"
+        ],
+        "0 10 14 9 *": [
+            "GROUP",
+            "Happy National Quiet Day everyone!"
+        ],
+        "0 10 15 9 *": [
+            "GROUP",
+            "Happy International Day of Democracy everyone!"
+        ],
+        "0 10 17 9 *": [
+            "GROUP",
+            "Happy World Patient Safety Day everyone!"
+        ],
+        "0 10 19 9 *": [
+            "GROUP",
+            "Happy International Talk Like a Pirate Day everyone!"
+        ],
+        "0 10 20 9 *": [
+            "GROUP",
+            "Happy International Day of University Sport everyone!"
+        ],
+        "0 10 25 9 *": [
+            "GROUP",
+            "Happy World Pharmacists Day everyone!"
+        ],
+        "0 10 27 9 *": [
+            "GROUP",
+            "Happy World Tourism Day everyone!"
+        ],
+        "0 10 28 9 *": [
+            "GROUP",
+            "Happy World Rabies Day everyone!"
+        ],
+        "0 10 29 9 *": [
+            "GROUP",
+            "Happy World Heart Day everyone!"
+        ],
+        "0 10 30 9 *": [
+            "GROUP",
+            "Happy International Translation Day everyone!"
+        ],
+        "0 10 1 10 *": [
+            "GROUP",
+            "Happy International Day of Older Persons everyone!"
+        ],
+        "0 10 3 10 *": [
+            "GROUP",
+            "Happy German Unity Day everyone!"
+        ],
+        "0 10 5 10 *": [
+            "GROUP",
+            "Happy International Day of No Prostitution everyone!"
+        ],
+        "0 10 6 10 *": [
+            "GROUP",
+            "Happy German-American Day everyone!"
+        ],
+        "0 10 9 10 *": [
+            "GROUP",
+            "Happy World Post Day everyone!"
+        ],
+        "0 10 10 10 *": [
+            "GROUP",
+            "Happy World Mental Health Day everyone!"
+        ],
+        "0 10 11 10 *": [
+            "GROUP",
+            "Happy International Day of the Girl Child everyone!"
+        ],
+        "0 10 12 10 *": [
+            "GROUP",
+            "Happy World Sight Day everyone!"
+        ],
+        "0 10 15 10 *": [
+            "GROUP",
+            "Happy Global Handwashing Day everyone!"
+        ],
+        "0 10 16 10 *": [
+            "GROUP",
+            "Happy National Boss Day everyone!"
+        ],
+        "0 10 17 10 *": [
+            "GROUP",
+            "Happy International Day for the Eradication of Poverty everyone!"
+        ],
+        "0 10 26 10 *": [
+            "GROUP",
+            "Happy Intersex Awareness Day everyone!"
+        ],
+        "0 10 27 10 *": [
+            "GROUP",
+            "Happy World Day for Audiovisual Heritage everyone!"
+        ],
+        "0 10 28 10 *": [
+            "GROUP",
+            "Happy International Animation Day everyone!"
+        ],
+        "0 10 29 10 *": [
+            "GROUP",
+            "Happy World Stroke Day everyone!"
+        ],
+        "0 10 30 10 *": [
+            "GROUP",
+            "Happy Mischief Night everyone!"
+        ],
+        "0 10 31 10 *": [
+            "GROUP",
+            "Happy Reformation Day everyone!"
+        ],
+        "0 10 2 11 *": [
+            "GROUP",
+            "Happy International Day to End Impunity for Crimes Against Journalists everyone!"
+        ],
+        "0 10 4 11 *": [
+            "GROUP",
+            "Happy The Slovak Day of Nursery Schools everyone!"
+        ],
+        "0 10 5 11 *": [
+            "GROUP",
+            "Happy Guy Fawkes Day everyone!"
+        ],
+        "0 10 7 11 *": [
+            "GROUP",
+            "Happy International African Writers' Day everyone!"
+        ],
+        "0 10 8 11 *": [
+            "GROUP",
+            "Happy International Day of Radiology everyone!"
+        ],
+        "0 10 9 11 *": [
+            "GROUP",
+            "Happy World Freedom Day everyone!"
+        ],
+        "0 10 10 11 *": [
+            "GROUP",
+            "Happy Keratoconus awareness day/World KC Day everyone!"
+        ],
+        "0 10 11 11 *": [
+            "GROUP",
+            "Happy Armistice Day, also known as Remembrance Day everyone!"
+        ],
+        "0 10 12 11 *": [
+            "GROUP",
+            "Happy World Pneumonia Day everyone!"
+        ],
+        "0 10 13 11 *": [
+            "GROUP",
+            "Happy World Kindness Day everyone!"
+        ],
+        "0 10 14 11 *": [
+            "GROUP",
+            "Happy World Diabetes Day everyone!"
+        ],
+        "0 10 16 11 *": [
+            "GROUP",
+            "Happy International Day for Tolerance everyone!"
+        ],
+        "0 10 17 11 *": [
+            "GROUP",
+            "Happy International Students Day everyone!"
+        ],
+        "0 10 19 11 *": [
+            "GROUP",
+            "Happy International Journalist's Remembrance Day everyone!"
+        ],
+        "0 10 20 11 *": [
+            "GROUP",
+            "Happy Transgender Day of Remembrance everyone!"
+        ],
+        "0 10 23 11 *": [
+            "GROUP",
+            "Happy World Continuous Improvement Day everyone!"
+        ],
+        "0 10 25 11 *": [
+            "GROUP",
+            "Happy International Day for the Elimination of Violence against Women everyone!"
+        ],
+        "0 10 26 11 *": [
+            "GROUP",
+            "Happy Anti Obesity Day everyone!"
+        ],
+        "0 10 30 11 *": [
+            "GROUP",
+            "Happy Cities for Life Day everyone!"
+        ],
+        "0 10 1 12 *": [
+            "GROUP",
+            "Happy World AIDS Day everyone!"
+        ],
+        "0 10 2 12 *": [
+            "GROUP",
+            "Happy International Day for the Abolition of Slavery everyone!"
+        ],
+        "0 10 3 12 *": [
+            "GROUP",
+            "Happy International Day of Persons with Disabilities everyone!"
+        ],
+        "0 10 6 12 *": [
+            "GROUP",
+            "Happy Independence Day everyone!"
+        ],
+        "0 10 7 12 *": [
+            "GROUP",
+            "Happy International Civil Aviation Day everyone!"
+        ],
+        "0 10 9 12 *": [
+            "GROUP",
+            "Happy International Anti-Corruption Day everyone!"
+        ],
+        "0 10 10 12 *": [
+            "GROUP",
+            "Happy Human Rights Day everyone!"
+        ],
+        "0 10 12 12 *": [
+            "GROUP",
+            "Happy Universal Health Coverage Day everyone!"
+        ],
+        "0 10 15 12 *": [
+            "GROUP",
+            "Happy International Tea Day everyone!"
+        ],
+        "0 10 16 12 *": [
+            "GROUP",
+            "Happy Victory day of Bangladesh everyone!"
+        ],
+        "0 10 17 12 *": [
+            "GROUP",
+            "Happy International Day to End Violence Against Sex Workers everyone!"
+        ],
+        "0 10 18 12 *": [
+            "GROUP",
+            "Happy International Migrants Day everyone!"
+        ],
+        "0 10 20 12 *": [
+            "GROUP",
+            "Happy International Human Solidarity Day everyone!"
+        ],
+        "0 10 22 12 *": [
+            "GROUP",
+            "Happy National Mathematics Day everyone!"
+        ],
+        "0 10 23 12 *": [
+            "GROUP",
+            "Happy Festivus everyone!"
+        ],
+        "0 10 25 12 *": [
+            "GROUP",
+            "Happy Good Governance Day everyone!"
+        ],
+        "0 10 26 12 *": [
+            "GROUP",
+            "Happy Boxing Day everyone!"
+        ],
+        "0 10 27 12 *": [
+            "GROUP",
+            "Happy Benazir Bhutto Memorial Day everyone!"
+        ],
+        "0 10 31 12 *": [
+            "GROUP",
+            "Happy New Year's Eve everyone!"
+        ],
+        "30 16 * * 5": [
+            "GROUP",
+            "I bet $RANDOM has that friday feeling"
         ]
     },
     "100008107759049": {}

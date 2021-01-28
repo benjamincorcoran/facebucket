@@ -254,12 +254,32 @@ class Bucket(fbchat.Client):
 
                 timedMessages = self.TIMERS.check(self.lastCheckTime)
                 if timedMessages is not None:
+
                     for thread_id, thread_type, response in timedMessages:
 
                         if thread_type == 'GROUP':
                             thread_type = ThreadType.GROUP
                         else:
                             thread_type = ThreadType.USER
+
+                        if thread_type == ThreadType.GROUP:
+                            USER = fbchat.User(1,first_name='')
+                            ALLUSERS = [user for uid, user in self.fetchUserInfo(
+                                *self.fetchGroupInfo(thread_id)[thread_id].participants).items() if user.first_name != 'Bot']
+                        else:
+                            USER = self.fetchUserInfo(thread_id)[thread_id]
+                            ALLUSERS = [USER]
+
+                        self.KEYWORDS = {
+                            r"\$USER": USER.first_name,
+                            r"\$RANDOM": lambda _: random.choice(ALLUSERS).first_name,
+                            r"\$RAND(\d+)": lambda x: str(random.randint(1, int(x))),
+                        }
+
+                        for key in self.wordLists:
+                            self.KEYWORDS[r'\$'+key.upper()] = lambda _, k=key: random.choice(self.wordLists[k])
+                            self.KEYWORDS[r'\$(\w+)_'+key.upper()] = lambda s, k=key: random.choice([n for n in self.wordLists[k] if n[:len(s)]==s.lower()]+[''])
+
 
                         response = self.apply_keywords(response)
                         response = re.sub(r'\b([aA])\b(?=\s+[aeiouAEIOU])',r'\1n',response)
