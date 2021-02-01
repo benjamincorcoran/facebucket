@@ -468,7 +468,6 @@ class Bucket(fbchat.Client):
     def last_message_was_haiku(self, thread_id):
         haiku_test = [len(re.findall(r'([aeiouy])', msg, flags=re.IGNORECASE))
                       for msg in self.HISTORY['message'][thread_id]]
-
         if haiku_test == [5, 7, 5]:
             return True
         else:
@@ -600,7 +599,7 @@ class Bucket(fbchat.Client):
                 self.add_new_timer(message_object, thread_id, thread_type)
             # Look for a reponse
             elif self.last_message_was_haiku(thread_id):
-                self.MESSAGE_HISTORY[thread_id] = []
+                self.HISTORY['message'][thread_id] = []
                 self.send(
                     Message(
                         text='Was that a haiku?'),
