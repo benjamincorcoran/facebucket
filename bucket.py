@@ -227,6 +227,7 @@ class Bucket(fbchat.Client):
         self.TIMER_PATTERN = re.compile('bucket ((?:(?:(?:\d+,)+\d+|(?:\d+(?:\/|-)\d+)|(?:\*(?:\/|-)\d+)|\d+|\*) ?){5,7})\s(.*)', flags=re.IGNORECASE + re.DOTALL)
         self.HELP_PATTERN = re.compile(r'bucket help ?(.*)?', flags=re.IGNORECASE)
         self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
+        self.URL_PATTERN = re.compile(r'\$URL:([^\s]*\.[^\s]+)', flags=re.IGNORECASE)
 
     # @contextlib.contextmanager
     # def appearing_in_thought(self, thread_id, thread_type):
@@ -495,6 +496,12 @@ class Bucket(fbchat.Client):
             response = match[1]
             captures = match[2]
 
+            attachments = None
+            if re.search(self.URL_PATTERN, response):
+                attachments = re.findall(self.URL_PATTERN, response)
+                response = re.sub(self.URL_PATTERN, '', response)
+                print(attachments)
+
             if isinstance(response, list):
                 response = random.choice(response)
 
@@ -507,7 +514,10 @@ class Bucket(fbchat.Client):
             response = re.sub(r'\b([aA][nN])\b(?=\s+[^aeiouAEIOU])',r'a',response)
 
             if response != self.HISTORY['sent'][thread_id][-1]:
-                self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
+                if attachments is not None:
+                    self.sendRemoteFiles(attachments, Message(text=response), thread_id=thread_id, thread_type=thread_type)
+                else:
+                    self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
                 self.add_to_sent_history(Message(text=response), thread_id)
                 return True
         
@@ -528,7 +538,7 @@ class Bucket(fbchat.Client):
             Message(
                 text='bucket help'),
             thread_id,
-            thread_type)
+            thread_type)                         
 
     def onMessage(
             self,
@@ -565,6 +575,8 @@ class Bucket(fbchat.Client):
         if author_id != self.uid:
             self.add_to_message_history(message_object, thread_id)
             # Add and item
+            if message_object.text == 'imgtest':
+                self.imgtest(message_object, thread_id, thread_type)
             if re.match(self.NEW_ITEM_PATTERN, message_object.text):
                 self.add_to_bucket(message_object, thread_id, thread_type)
             # Give an item

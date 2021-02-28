@@ -7,6 +7,28 @@ import re
 import os
 import glob
 import json
+import fbchat
+import pickle
+import getpass
+
+
+fbchat._util.USER_AGENTS = [
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"]
+fbchat._state.FB_DTSG_REGEX = re.compile(r'"name":"fb_dtsg","value":"(.*?)"')
+
+SESSION_PATH = './assets/SESSION.pickle'
+
+
+def create_session():
+    '''
+    Create and pickle the fbchat cookies for a persistent session
+    '''
+    email = input('Email Address: ')
+    pw = getpass.getpass('Pass: ')
+    client = fbchat.Client(email, pw)
+
+    with open(SESSION_PATH, 'wb') as f:
+        pickle.dump(client.getSession(), f)
 
 
 def load_data(path):
