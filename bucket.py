@@ -513,7 +513,7 @@ class Bucket(fbchat.Client):
             response = re.sub(r'\b([aA])\b(?=\s+[aeiouAEIOU])',r'\1n',response)
             response = re.sub(r'\b([aA][nN])\b(?=\s+[^aeiouAEIOU])',r'a',response)
 
-            if response != self.HISTORY['sent'][thread_id][-1]:
+            if response + ''.join(attachments) != self.HISTORY['sent'][thread_id][-1]:
                 if attachments is not None:
                     self.sendRemoteFiles(attachments, Message(text=response), thread_id=thread_id, thread_type=thread_type)
                 else:
