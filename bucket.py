@@ -575,8 +575,6 @@ class Bucket(fbchat.Client):
         if author_id != self.uid:
             self.add_to_message_history(message_object, thread_id)
             # Add and item
-            if message_object.text == 'imgtest':
-                self.imgtest(message_object, thread_id, thread_type)
             if re.match(self.NEW_ITEM_PATTERN, message_object.text):
                 self.add_to_bucket(message_object, thread_id, thread_type)
             # Give an item
