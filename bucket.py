@@ -18,7 +18,7 @@ from functions import *
 
 fbchat._util.USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"]
-fbchat._state.FB_DTSG_REGEX = re.compile(r'"name":"fb_dtsg","value":"(.*?)"')
+# fbchat._state.FB_DTSG_REGEX = re.compile(r'"name":"fb_dtsg","value":"(.*?)"')
 
 SESSION_PATH = './assets/SESSION.pickle'
 
@@ -168,9 +168,10 @@ class TimedResponder(Responder):
         self.load()
     
     def remove(self, thread_id, trigger):  
-        self.rawResponses[thread_id] = {k:[t,v] for k,[t,v] in self.rawResponses[thread_id].items() if v.lower() != trigger.lower()}
-        self.save()
-        self.load()
+        if thread_id in self.rawResponses.keys():
+            self.rawResponses[thread_id] = {k:[t,v] for k,[t,v] in self.rawResponses[thread_id].items() if v.lower() != trigger.lower()}
+            self.save()
+            self.load()
 
 
 # Subclass fbchat.Client and override required methods
@@ -496,7 +497,7 @@ class Bucket(fbchat.Client):
             response = match[1]
             captures = match[2]
 
-            attachments = None
+            attachments = []
             if re.search(self.URL_PATTERN, response):
                 attachments = re.findall(self.URL_PATTERN, response)
                 response = re.sub(self.URL_PATTERN, '', response)
@@ -514,7 +515,7 @@ class Bucket(fbchat.Client):
             response = re.sub(r'\b([aA][nN])\b(?=\s+[^aeiouAEIOU])',r'a',response)
 
             if response + ''.join(attachments) != self.HISTORY['sent'][thread_id][-1]:
-                if attachments is not None:
+                if attachments != []:
                     self.sendRemoteFiles(attachments, Message(text=response), thread_id=thread_id, thread_type=thread_type)
                 else:
                     self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
