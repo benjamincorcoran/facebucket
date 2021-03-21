@@ -1,3 +1,4 @@
 fbchat
 pycron
 cron_descriptor
+nltk

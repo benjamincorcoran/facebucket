@@ -10,13 +10,14 @@ import json
 import fbchat
 import pickle
 import getpass
-
+import requests
 
 fbchat._util.USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36"]
 
 
 SESSION_PATH = './assets/SESSION.pickle'
+GIPHY_PATH = './assets/giphy.key'
 
 
 def create_session():
@@ -87,3 +88,14 @@ def load_word_lists(path):
             wordLists[fileName] = data
 
     return wordLists
+
+def get_gif(search: str, weirdness: int) -> str:
+    
+    with open(GIPHY_PATH, 'r') as f:
+        giphyKey = f.read()
+
+    URL = 'https://api.giphy.com/v1/gifs/translate?'
+    params = {'api_key': giphyKey, 's':search, 'weirdness':weirdness}
+    resp = requests.get(URL, params=params)
+    gifid = resp.json()['data']['id']
+    return f'https://media.giphy.com/media/{gifid}/source.gif'

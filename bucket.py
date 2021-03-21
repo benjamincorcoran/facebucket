@@ -11,6 +11,10 @@ import pycron
 import cron_descriptor as cd
 import datetime
 
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+
 from fbchat import log, Client
 from fbchat import Message, User, ThreadType, ThreadLocation
 
@@ -182,6 +186,7 @@ class Bucket(fbchat.Client):
         # Bucket variables
         self.RESPONSE_PROB = 1
         self.BAND_NAME_PROB = 0.2
+        self.GIF_PROB = 0.2
         self.BUCKET_SIZE = 30
         self.HISTORY = {
             'message': collections.defaultdict(lambda :['']),
@@ -189,6 +194,7 @@ class Bucket(fbchat.Client):
         }
 
         self.KEYWORDS = None
+        self.STOPWORDS = set(stopwords.words('english'))
 
         # Load session data
         with open(SESSION_PATH, 'rb') as f:
@@ -486,6 +492,12 @@ class Bucket(fbchat.Client):
                         text=f'{message_object.text} would be a good name for a {genre} band.'),
                     thread_id=thread_id,
                     thread_type=thread_type)
+    
+    def random_gif_response(self, message_object, thread_id, thread_type):
+        uncommon = [_ for _ in filter(lambda w: not w in self.STOPWORDS, message_object.text.split())]
+        if len(uncommon) > 0:
+            gif = get_gif(random.choice(uncommon), random.randint(1,10))
+            self.sendRemoteFiles(gif, Message(text=''), thread_id=thread_id, thread_type=thread_type)
 
     def respond_to_message(self, message_object, thread_id, thread_type):
 
@@ -629,6 +641,8 @@ class Bucket(fbchat.Client):
             if not messageHandled and re.match(
                     self.BAND_PATTERN, message_object.text):
                 self.check_band_name(message_object, thread_id, thread_type)
+            if not messageHandled and random.random() < self.GIF_PROB:
+                self.random_gif_response(message_object, thread_id, thread_type)
 
 
 bucket = Bucket()
