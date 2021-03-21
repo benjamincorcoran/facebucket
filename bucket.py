@@ -217,6 +217,9 @@ class Bucket(fbchat.Client):
         # Set up minute started
         self.lastCheckTime = datetime.datetime.utcnow()
 
+        # Load timeouts
+        self.timeOuts = []
+
         super(
             Bucket,
             self).__init__(
@@ -235,6 +238,7 @@ class Bucket(fbchat.Client):
         self.HELP_PATTERN = re.compile(r'bucket help ?(.*)?', flags=re.IGNORECASE)
         self.QUIET_PATTERN = re.compile(r'bucket shut up (\d+)', flags=re.IGNORECASE)
         self.URL_PATTERN = re.compile(r'\$URL:([^\s]*\.[^\s]+)', flags=re.IGNORECASE)
+        self.TIMEOUT_PATTERN = re.compile(r'bucket give (\w+) a time out', flags=re.IGNORECASE)
 
     # @contextlib.contextmanager
     # def appearing_in_thought(self, thread_id, thread_type):
@@ -259,6 +263,17 @@ class Bucket(fbchat.Client):
         while self.listening and self.doOneListen():
             if self.lastCheckTime.minute != datetime.datetime.utcnow().minute:
                 self.lastCheckTime = datetime.datetime.utcnow()
+
+                if len(self.timeOuts) > 0:
+                    remove = []
+                    for i, timeOut in enumerate(self.timeOuts):
+                        if timeOut['time_in'] < datetime.datetime.now():
+                            print(timeOut)
+                            self.time_in(timeOut['thread_id'], timeOut['thread_type'], timeOut['user_id'])
+                            remove.append(i)
+                    
+                    self.timeOuts = [t for i,t in enumerate(self.timeOuts) if i not in remove]
+                    
 
                 timedMessages = self.TIMERS.check(self.lastCheckTime)
                 if timedMessages is not None:
@@ -499,6 +514,33 @@ class Bucket(fbchat.Client):
             gif = get_gif(random.choice(uncommon), random.randint(1,10))
             self.sendRemoteFiles(gif, Message(text=''), thread_id=thread_id, thread_type=thread_type)
 
+    def time_out(self, message_object, thread_id, thread_type, msg=None, userid=None):
+        
+        if userid is None:
+            target = re.findall(self.TIMEOUT_PATTERN, message_object.text)[0].lower()
+
+            if target == 'bucket':
+                self.send(Message(text="I'm not a moron."), thread_id=thread_id, thread_type=thread_type)
+
+            users = {user.first_name.lower():uid for uid, user in self.fetchUserInfo(
+                    *self.fetchGroupInfo(thread_id)[thread_id].participants).items() if user.first_name != 'Bucket'}
+        else:
+            target = self.fetchUserInfo(userid)[userid].first_name
+            users = {target:userid}
+        
+        if msg is None:
+            msg = f'{target.title()} is having a 5 minute time out.'
+
+        if target in users.keys():
+            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            self.removeUserFromGroup(users[target], thread_id=thread_id)
+            self.timeOuts.append({'thread_id':thread_id, 'thread_type':thread_type, 'user_id':users[target],'time_in':datetime.datetime.now()+datetime.timedelta(minutes = 5)})
+    
+    def time_in(self, thread_id, thread_type, user_id):
+        self.addUsersToGroup([user_id], thread_id=thread_id)
+        self.send(Message(text=f'I hope you learned your lesson.'), thread_id=thread_id, thread_type=thread_type)
+
+
     def respond_to_message(self, message_object, thread_id, thread_type):
 
         match = self.RESPONSES.check(message_object.text)
@@ -508,6 +550,10 @@ class Bucket(fbchat.Client):
             trigger = match[0]
             response = match[1]
             captures = match[2]
+
+            if re.search('\$TIMEOUT', response, flags=re.IGNORECASE):
+                self.time_out(message_object, thread_id, thread_type, msg=re.sub('\$TIMEOUT\s*','',response, flags=re.IGNORECASE), userid=message_object.author)
+                return True
 
             attachments = []
             if re.search(self.URL_PATTERN, response):
@@ -536,13 +582,14 @@ class Bucket(fbchat.Client):
         
         return False
 
-    def onPeopleAdded(self, added_ids, author_id, thread_id):
+    def onPeopleAdded(self, added_ids, author_id, thread_id, **kwargs):
         self.markAsRead(thread_id)
-        self.respond_with_help_doc(
-            Message(
-                text='bucket help'),
-            thread_id,
-            ThreadType.GROUP)
+        if self.fetchUserInfo(author_id)[author_id].first_name.lower() != 'bucket':
+            self.respond_with_help_doc(
+                Message(
+                    text='bucket help'),
+                thread_id,
+                ThreadType.GROUP)
 
     def onPendingMessage(self, thread_id, thread_type, metadata, msg):
         self.moveThreads(ThreadLocation.INBOX, thread_id)
@@ -628,6 +675,9 @@ class Bucket(fbchat.Client):
                         text='Was that a haiku?'),
                     thread_id=thread_id,
                     thread_type=thread_type)
+            # Look for a time out 
+            elif re.match(self.TIMEOUT_PATTERN, message_object.text):
+                self.time_out(message_object, thread_id, thread_type)
             else:
                 messageHandled = False
 
