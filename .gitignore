@@ -2,5 +2,7 @@ __pycache__/
 .vscode/
 
 *.pem
+*.key
 main.py
 SESSION.pickle
+
