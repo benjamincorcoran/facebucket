@@ -97,5 +97,9 @@ def get_gif(search: str, weirdness: int) -> str:
     URL = 'https://api.giphy.com/v1/gifs/translate?'
     params = {'api_key': giphyKey, 's':search, 'weirdness':weirdness}
     resp = requests.get(URL, params=params)
-    gifid = resp.json()['data']['id']
-    return f'https://media.giphy.com/media/{gifid}/source.gif'
+    # print(json.dumps(resp.json()['data'], indent=4))
+    if len(resp.json()['data']) > 0:
+        gifid = resp.json()['data']['id']
+        return f'https://media.giphy.com/media/{gifid}/giphy.gif'
+    else:
+        return False
