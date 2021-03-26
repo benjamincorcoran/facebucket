@@ -170,11 +170,12 @@ class Bucket(fbchat.Client):
             msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply with one of '{', '.join(newResponse[1])}'."
 
         self.RESPONSES.add(*newResponse)
-        self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+        self.send(Message(text=msg), **context)
 
-    def delete_response(self, message_object, thread_id='', thread_type=''):
+    def delete_response(self, message_object, context):
 
         # with self.appearing_in_thought(thread_id='', thread_type=''):
+        thread_id = context['thread_id']
 
         trigger = re.findall(self.DELETE_RESPONSE_PATTERN,message_object.text)[0]
 
@@ -183,9 +184,9 @@ class Bucket(fbchat.Client):
  
 
         msg = f"Okay, I wont respond to '{trigger}' anymore :)"
-        self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+        self.send(Message(text=msg), **context)
 
-    def add_to_bucket(self, message_object, thread_id='', thread_type=''):
+    def add_to_bucket(self, message_object, context):
 
         # with self.appearing_in_thought(thread_id='', thread_type=''):
 
@@ -197,7 +198,7 @@ class Bucket(fbchat.Client):
         else:
             msg = f"Bucket dropped {dropped}. Bucket is now holding {newItem}."
 
-        self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+        self.send(Message(text=msg), **context)
 
     def apply_keywords(self, response):
         for keyword, replace in self.KEYWORDS.items():
@@ -215,7 +216,10 @@ class Bucket(fbchat.Client):
                     keyword, replace, response, flags=re.IGNORECASE)
         return response
 
-    def give_item_to(self, message_object, thread_id='', thread_type=''):
+    def give_item_to(self, message_object, context):
+
+        thread_type = context['thread_type']
+        thread_id = context['thread_id']
 
         capture = re.findall(
             self.GIVE_ITEM_PATTERN,
@@ -242,29 +246,25 @@ class Bucket(fbchat.Client):
             else:
                 msg = f"Bucket gave {target} {gift}."
 
-            self.send(
-                Message(
-                    text=msg),
-                thread_id=thread_id,
-                thread_type=thread_type)
+            self.send(Message(text=msg), **context)
 
-    def add_new_timer(self, message_object, thread_id='', thread_type=''):
+    def add_new_timer(self, message_object, context):
         
         user = self.KEYWORDS[r'\$USER']
         
         capture = re.findall(self.TIMER_PATTERN, message_object.text)[0]
 
-        if thread_type == ThreadType.GROUP:
+        if context['thread_type'] == ThreadType.GROUP:
             ttype = 'GROUP'
         else:
             ttype = 'USER'
         
-        self.TIMERS.add(thread_id, capture[0], [ttype, capture[1]])
+        self.TIMERS.add(context['thread_id'], capture[0], [ttype, capture[1]])
 
         engCron = cd.get_description(capture[0])
         msg = f"Okay {user}. I'll say '{capture[1]}' {engCron.lower()}"
 
-        self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+        self.send(Message(text=msg), **context)
 
     def respond_with_help_doc(self, message_object, thread_id='', thread_type=''):
         specific = re.findall(self.HELP_PATTERN, message_object.text)[0]
@@ -279,7 +279,7 @@ class Bucket(fbchat.Client):
             thread_id=thread_id,
             thread_type=thread_type)
 
-    def global_quiet(self, message_object, thread_id='', thread_type=''):
+    def global_quiet(self, message_object, context):
         minutes = int(re.findall(self.QUIET_PATTERN, message_object.text)[0])
 
         if minutes <= 60:
@@ -288,11 +288,7 @@ class Bucket(fbchat.Client):
             minutes = 60
             msg = f"Err, I'll be quiet for an hour, but I wont be silenced."
 
-        self.send(
-            Message(
-                text=msg),
-            thread_id=thread_id,
-            thread_type=thread_type)
+        self.send(Message(text=msg), **context)
         self.stopListening()
         time.sleep(minutes * 60)
         self.listen()
@@ -313,7 +309,7 @@ class Bucket(fbchat.Client):
         else:
             return False
 
-    def check_band_name(self, message_object, thread_id='', thread_type=''):
+    def check_band_name(self, message_object, context):
         bandName = re.findall(self.BAND_PATTERN, message_object.text)[0]
         if not self.BANDS.has(bandName):
             self.BANDS.add(bandName)
@@ -322,22 +318,24 @@ class Bucket(fbchat.Client):
                 self.send(
                     Message(
                         text=f'{message_object.text} would be a good name for a {genre} band.'),
-                    thread_id=thread_id,
-                    thread_type=thread_type)
+                        **context)
     
-    def random_gif_response(self, message_object, thread_id='', thread_type=''):
+    def random_gif_response(self, message_object, context):
         uncommon = [_ for _ in filter(lambda w: not w in self.STOPWORDS, message_object.text.split())]
         if len(uncommon) > 0:
             gif = get_gif(random.choice(uncommon), random.randint(1,10))
-            self.sendRemoteFiles(gif, Message(text=''), thread_id=thread_id, thread_type=thread_type)
+            self.sendRemoteFiles(gif, Message(text=''), **context)
 
     def time_out(self, message_object, context, msg=None, userid=None):
         
+        thread_id = context['thread_id']
+        thread_type = context['thread_type']
+
         if userid is None:
             target = re.findall(self.TIMEOUT_PATTERN, message_object.text)[0].lower()
 
             if target == 'bucket':
-                self.send(Message(text="I'm not a moron."), thread_id=thread_id, thread_type=thread_type)
+                self.send(Message(text="I'm not a moron."), **context)
 
             users = {user.first_name.lower():uid for uid, user in self.fetchUserInfo(
                     *self.fetchGroupInfo(thread_id)[thread_id].participants).items() if user.first_name != 'Bucket'}
@@ -350,7 +348,7 @@ class Bucket(fbchat.Client):
             msg = f'{target.title()} is having a 5 minute time out.'
 
         if target in users.keys():
-            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            self.send(Message(text=msg), **context)
             self.removeUserFromGroup(users[target], thread_id=thread_id)
             self.timeOuts.append({'thread_id':thread_id, 'thread_type':thread_type, 'user_id':users[target],'time_in':datetime.datetime.now()+datetime.timedelta(minutes = 5)})
     
@@ -368,6 +366,9 @@ class Bucket(fbchat.Client):
             response = match[1]
             captures = match[2]
 
+            if isinstance(response, list):
+                response = random.choice(response)
+
             if re.search('\$TIMEOUT', response, flags=re.IGNORECASE):
                 self.time_out(message_object, context, msg=re.sub('\$TIMEOUT\s*','',response, flags=re.IGNORECASE), userid=message_object.author)
                 return True
@@ -377,8 +378,6 @@ class Bucket(fbchat.Client):
                 attachments = re.findall(self.URL_PATTERN, response)
                 response = re.sub(self.URL_PATTERN, '', response)
 
-            if isinstance(response, list):
-                response = random.choice(response)
 
             response = self.apply_keywords(response)
 
@@ -388,7 +387,7 @@ class Bucket(fbchat.Client):
             response = re.sub(r'\b([aA])\b(?=\s+[aeiouAEIOU])',r'\1n',response)
             response = re.sub(r'\b([aA][nN])\b(?=\s+[^aeiouAEIOU])',r'a',response)
 
-            if response + ''.join(attachments) != self.HISTORY['sent'][thread_id][-1]:
+            if response + ''.join(attachments) != self.HISTORY['sent'][context['thread_id']][-1]:
                 if attachments != []:
                     self.sendRemoteFiles(attachments, Message(text=response), **context)
                 else:
@@ -459,7 +458,7 @@ class Bucket(fbchat.Client):
                 self.add_to_responses(message_object, context, responseType='then')
             # Add a choice response
             elif re.match(self.NEW_CHOICE_PATTERN, message_object.text):
-                self.add_to_responses(message_object, context responseType='choice')
+                self.add_to_responses(message_object, context, responseType='choice')
             # Remove a response
             elif re.match(self.DELETE_RESPONSE_PATTERN, message_object.text):
                 self.delete_response(message_object, context)
