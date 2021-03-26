@@ -319,12 +319,19 @@ class Bucket(fbchat.Client):
                     Message(
                         text=f'{message_object.text} would be a good name for a {genre} band.'),
                         **context)
+                return True
+        
+        return False
     
     def random_gif_response(self, message_object, context):
         uncommon = [_ for _ in filter(lambda w: not w in self.STOPWORDS, message_object.text.split())]
         if len(uncommon) > 0:
             gif = get_gif(random.choice(uncommon), random.randint(1,10))
-            self.sendRemoteFiles(gif, Message(text=''), **context)
+            if gif:
+                self.sendRemoteFiles(gif, Message(text=''), **context)
+                return True
+
+        return False
 
     def time_out(self, message_object, context, msg=None, userid=None):
         
@@ -486,6 +493,7 @@ class Bucket(fbchat.Client):
 
             if not messageHandled and re.match(self.BAND_PATTERN, message_object.text):
                 messageHandled = self.check_band_name(message_object, context)
+
             if not messageHandled and random.random() < self.GIF_PROB:
                 messageHandled = self.random_gif_response(message_object, context)
 
