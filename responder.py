@@ -64,6 +64,18 @@ class Responder(object):
         else:
             return None
 
+class MemoryResponder(Responder):
+    def __init__(self, responses):
+
+        self.CLEAN_PATTERN = re.compile(r'[^A-Za-z0-9\s\$;]')
+        self.rawResponses = responses
+        self.path = 'MEMORY'
+
+        self.RESPONSES = {
+            self.parse(trigger): response for trigger,
+            response in self.rawResponses.items()}
+
+
 class TimedResponder(Responder):
 
     def parse(self, text):
