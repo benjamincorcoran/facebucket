@@ -81,7 +81,7 @@ class Bucket(fbchat.Client):
         # Patterns
         self.NEW_RESPONSE_PATTERN = re.compile(r'if (.*) then (.*)', flags=re.IGNORECASE + re.DOTALL)
         self.NEW_CHOICE_PATTERN = re.compile(r'if (.*) choose (.*)', flags=re.IGNORECASE + re.DOTALL)
-        self.NEW_TREE_PATTERN = re.compile(r'if (.*) tree (?:(.*?) )?({.*})', flags=re.IGNORECASE + re.DOTALL)
+        self.NEW_TREE_PATTERN = re.compile(r'if (.*) tree (\[.*\])', flags=re.IGNORECASE + re.DOTALL)
         self.DELETE_RESPONSE_PATTERN = re.compile(r'bucket no more (.*)', flags=re.IGNORECASE + re.DOTALL)
         self.NEW_ITEM_PATTERN = re.compile(r'give bucket (.*)', flags=re.IGNORECASE + re.DOTALL)
         self.GIVE_ITEM_PATTERN = re.compile(r'bucket give (\w+) a present', flags=re.IGNORECASE)
@@ -173,10 +173,7 @@ class Bucket(fbchat.Client):
 
         elif responseType == 'tree':
             newResponse = re.findall(self.NEW_TREE_PATTERN, message_object.text)[0]
-            safeYAML = re.sub(':(?!:\s)',': ',newResponse[2])
-
-            print(yaml.load(safeYAML, Loader=yaml.FullLoader))
-            newResponse = (newResponse[0], [newResponse[1],  yaml.load(safeYAML, Loader=yaml.FullLoader)])
+            newResponse = [newResponse[0], json.loads(newResponse[1])]
             msg = f"Okay {user}, if someone says '{newResponse[0]}' then I'll reply '{newResponse[1][0]}' then enter this tree {newResponse[1][1]}."
 
         self.RESPONSES.add(*newResponse)
@@ -385,8 +382,12 @@ class Bucket(fbchat.Client):
             
             if isinstance(response, list):
                 if any([isinstance(i, dict) for i in response]):
-                    self.RESPONSES = MemoryResponder(response[1])
-                    response = response[0]
+                    newDict = [i for i in response if isinstance(i, dict)][0]
+                    self.RESPONSES = MemoryResponder(newDict)
+                    if len(response) == 2:
+                        response = response[0]
+                    else:
+                        response = response[1]
                     if response == '':
                         return False
                 

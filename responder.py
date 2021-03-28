@@ -71,6 +71,7 @@ class MemoryResponder(Responder):
         self.rawResponses = responses
         self.path = 'MEMORY'
 
+
         self.RESPONSES = {
             self.parse(trigger): response for trigger,
             response in self.rawResponses.items()}
