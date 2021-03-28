@@ -433,14 +433,14 @@ class Bucket(fbchat.Client):
 
         self.markAsRead(thread_id)
         if self.fetchUserInfo(author_id)[author_id].first_name.lower() != 'bucket':
-            self.respond_with_help_doc(Message(text='bucket help'), context)
+            self.respond_with_help_doc(Message(text='bucket help'), **context)
 
     def onPendingMessage(self, thread_id, thread_type, metadata, msg):
         context = {'thread_id':thread_id, 'thread_type':thread_type}
 
         self.moveThreads(ThreadLocation.INBOX, thread_id)
         self.markAsRead(thread_id)
-        self.respond_with_help_doc(Message(text='bucket help'), context)
+        self.respond_with_help_doc(Message(text='bucket help'), **context)
 
     def get_users(self, USER, thread_id='', thread_type=''):
         if thread_type == ThreadType.GROUP:
@@ -496,7 +496,7 @@ class Bucket(fbchat.Client):
                 self.delete_response(message_object, context)
             # Look up help
             elif re.match(self.HELP_PATTERN, message_object.text):
-                self.respond_with_help_doc(message_object, context)
+                self.respond_with_help_doc(message_object, **context)
             # Look for quiet command
             elif re.match(self.QUIET_PATTERN, message_object.text):
                 self.global_quiet(message_object, context)
