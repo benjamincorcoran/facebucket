@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Bucket</title>
+    <link rel="stylesheet" href="./themes/default/style.css">
+    <link rel="stylesheet" href="./assets/style.css">
+    <script src="./assets/jquery-3.6.0.min.js"></script>
+    <script src="./assets/jstree.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container w-75">
+    <h1>Bucket Docs</h1>
+    <div class="chat">
+      <div class="msg_cotainer_send">
+        Hi 👋!
+      </div>
+      <div class="msg_cotainer_send">
+        I'm Bucket, I'm a computer and I live in the cloud.
+      </div>
+      <div class="msg_cotainer_send">
+        You can program me!
+      </div>
+    </div>
+
+    <hr>
+    <p>Bucket can be programmed in multiple ways.</p>
+    <h3>IF ... THEN ...</h3>
+    <p>The simplest way of programming bucket is with a <code>IF x THEN y</code>
+    message. Bucket will then respond with <code>Y</code> whenever someone
+    mentions <code>X</code> in a message.</p>
+    <div class="chat float-right">
+      <div class="msg_cotainer">
+        IF trigger THEN I was triggered
+      </div>
+      <div class="msg_cotainer_send">
+        Okay, if someone says 'trigger' then I'll reply "I was triggered".
+      </div>
+      <div class="msg_cotainer">
+        Hey Bucket, were you triggered.
+      </div>
+      <div class="msg_cotainer_send">
+        I was triggered
+      </div>
+    </div>
+
+    <hr>
+    <h3>IF ... CHOOSE ...</h3>
+    <p>Bucket can also be programmed using the <code>CHOOSE</code> keyword. Messages of the form
+    <code>IF x CHOOSE y;z;a;b</code> will cause bucket to response to any mention of <code>X</code> with
+    a random choice from <code>Y Z A B</code>. A semicolon is the delimiter for choices.</p>
+    <div class="chat float-right">
+      <div class="msg_cotainer">
+        IF best pet CHOOSE A dog; A cat; A mouse
+      </div>
+      <div class="msg_cotainer_send">
+        Okay, if someone says 'best' then I'll reply with one of "A dog", "A cat", "A mouse".
+      </div>
+      <div class="msg_cotainer">
+        Hey Bucket, whats the best pet?
+      </div>
+      <div class="msg_cotainer_send">
+        A cat
+      </div>
+      <div class="msg_cotainer">
+        Hey Bucket, whats the best pet?
+      </div>
+      <div class="msg_cotainer_send">
+        A dog
+      </div>
+      <div class="msg_cotainer">
+        Hey Bucket, whats the best pet?
+      </div>
+      <div class="msg_cotainer_send">
+        A mouse
+      </div>
+    </div>
+    <hr>
+    <h2>Items</h2>
+    <p>Bucket is able to hold up to 30 items. You can give an item to bucket by using the
+    <code>Give Bucket X</code> syntax. Bucket will add <code>X</code> to its items list. If 
+    bucket is already holding 30 items, it will drop one. 
+    </p>
+    <p>Bucket can also be told to give out an item by using the <code>Bucket give X a present</code>
+    Bucket will respond by randomly choosing an item it is holding and ""give"" that item to <code>X</code>.</p>
+
+    <div class="chat float-right">
+      <div class="msg_cotainer">
+        Give bucket a biscuit
+      </div>
+      <div class="msg_cotainer_send">
+        *Bucket is holding a biscuit*
+      </div>
+      <div class="msg_cotainer">
+        Bucket give John a present
+      </div>
+      <div class="msg_cotainer_send">
+        *Bucket gave John a biscuit*
+      </div>
+    </div>
+    <hr>
+    <h2>Timers</h2>
+    <p>Bucket can be programmed to do timed messages. Bucket will check every minute to see whether it has any timers to trigger.</p>
+    <p>To program a time use the form <code>Bucket CRONSYNTAX msg</code> where <code>CRONSYNTAX</code> is a cron timer string. More infomration
+    on how to write a cron string can be found at <a href="https://crontab.guru/">https://crontab.guru/</a></p>
+    <div class="chat float-right">
+      <div class="msg_cotainer">
+        Bucket 5 * * * * * Hello
+      </div>
+      <div class="msg_cotainer_send">
+        Okay, I will say 'Hello' every 5 minutes.
+      </div>
+      <div class="msg_cotainer_send">
+        Hello
+      </div>
+    </div>
+    <hr>
+    <h2>Dialog trees</h2>
+    <p>It is possible to write complex dialog trees for bucket. The inital trigger will cause bucket to move down the tree and will 
+      respond to all subsequent triggers if they occur. Bucket can only move down a dialog tree and any message that does not correspond 
+      to a programmed trigger will cause bucket to leave the dialog tree.
+    </p>
+
+    <p>Dialog trees are difficult to write, below is a handy tool that will convert the visual diagram of the dialog tree into a programming 
+      message that can be sent directly to bucket. 
+    </p>
+    <button type="button" class="btn btn-success btn-sm" onclick="demo_create();"><i class="glyphicon glyphicon-asterisk"></i> Create</button>
+		<button type="button" class="btn btn-warning btn-sm" onclick="demo_rename();"><i class="glyphicon glyphicon-pencil"></i> Change Text</button>
+		<button type="button" class="btn btn-danger btn-sm" onclick="demo_delete();"><i class="glyphicon glyphicon-remove"></i> Delete</button>
+    <button type="button" class="btn btn-info btn-sm" onclick="get_json();"><i class="glyphicon glyphicon-remove"></i> Generate Bucket Code</button>      
+    
+    <div id='dialogtree'></div>
+    <br>
+    <form>
+    <textarea class='form-control' id='dialogJson'></textarea>
+    </form>
+    <script src="./tree.js"></script>
+
+    <hr>
+    <h2>Keywords</h2>
+    Bucket has several keywords that can be utilised in responses. All keywords start with a <code>$</code>. 
+    <br>
+    <table>
+      <tr><th>Keyword</th><th>Result</th></tr>
+      <tr><td><code>$USER</code></td><td>The first name of the user who triggered the response.</td></tr>
+      <tr><td><code>$RANDOM</code></td><td>The first name of a random user.</td></tr>
+      <tr><td><code>$RAND###</code></td><td>A random integer between 0 and the value of ###. e.g. <code>$RAND100</code></td></tr>
+      <tr><td><code>$FILE:path-to-file</code></td><td>This will attempt to parse and post the file stored at the provided URL. This can be used to send images, videos and sounds.</td></tr>
+      <tr><td><code>$TIMEOUT</code></td><td>This will cause whoever triggered the response to be kicked out of the chat for 10 minutes. Bucket will then add that person back once the alotted time has passed.</td></tr>
+    </table>
+    <br>
+    <p>Bucket also has preloaded dictionaries for random word and sentence generation. These keywords can be used directly <code>$KEYWORD</code> for 
+    a random word, or can be used with a specific prefix. To generate a random word with a specific prefix use <code>$PREFIX_KEYWORD</code>. e.g To 
+    generate a random noun begining with P, use <code>$P_NOUN</code>.</p>
+    <table>
+      <tr><th>Keyword</th><th>Result</th></tr>
+      <tr><td><code>$NOUN</code></td><td>A random noun.</td></tr>
+      <tr><td><code>$NOUNS</code></td><td>A random plural noun.</td></tr>
+      <tr><td><code>$VERB</code></td><td>A random verb (infinitive).</td></tr>
+      <tr><td><code>$VERBS</code></td><td>A random verb (third person singular).</td></tr>
+      <tr><td><code>$VERBED</code></td><td>A random verb (past).</td></tr>
+      <tr><td><code>$VERBING</code></td><td>A random verb (present).</td></tr>
+      <tr><td><code>$ADJECTIVE</code></td><td>A random adjective.</td></tr>
+      <tr><td><code>$ADVERB</code></td><td>A random adverb.</td></tr>
+      <tr><td><code>$GENRE</code></td><td>A random musical genre.</td></tr>
+    </table>
+    <hr>
+    <h2>Other commands</h2>
+    <h3>Help</h3>
+    <p>Bucket can post a link to this page by messaging <code>Bucket help</code>.</p>
+    <div class="chat float-right">
+      <div class="msg_cotainer">
+        Bucket help
+      </div>
+      <div class="msg_cotainer_send">
+        <a href="">asdfasdf</a>
+      </div>
+    </div>
+    <h3>Global quiet</h3>
+    <p>Bucket can be set to quiet for a period of time using <code>Bucket shut up ##</code> where <code>##</code> to a number in minutes. 
+       Bucket will not respond to any messages during this period.</p>
+    <div class="chat float-right">
+      <div class="msg_cotainer">
+        Bucket shut up 10
+      </div>
+      <div class="msg_cotainer_send">
+        Okay, I wont respond to any messages for 10 minutes.
+      </div>
+    </div>
+    <hr>
+    <hr>
+    Ben Corcoran 2021
+  </div>
+
+  </body>
+</html>
