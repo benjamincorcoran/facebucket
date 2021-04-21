@@ -1,6 +1,5 @@
 import re
 import json
-import yaml
 import fbchat
 import pickle
 import random
@@ -38,6 +37,7 @@ class Bucket(fbchat.Client):
         # Bucket variables
         self.RESPONSE_PROB = 1
         self.BAND_NAME_PROB = 0.2
+        self.HAPPY_X_DAY_PROB = 0.2
         self.GIF_PROB = 0.2
         self.BUCKET_SIZE = 30
         self.HISTORY = {
@@ -153,7 +153,12 @@ class Bucket(fbchat.Client):
                         response = re.sub(r'\b([aA])\b(?=\s+[aeiouAEIOU])',r'\1n',response)
                         response = re.sub(r'\b([aA][nN])\b(?=\s+[^aeiouAEIOU])',r'a',response)
 
-                        self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
+                        if response[:5] == 'Happy':
+                            if random.random() < self.HAPPY_X_DAY_PROB:
+                                self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
+                        else:
+                            self.send(Message(text=response), thread_id=thread_id, thread_type=thread_type)
+                        
 
         self.stopListening()
 
