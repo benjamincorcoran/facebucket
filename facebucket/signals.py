@@ -52,6 +52,7 @@ def on_message(sender, event: fbchat.MessageEvent, bucket):
         r = requests.get(url)
         files = bucket.client.upload([(f"_.{ext}", r.content, content_lookup[ext])])
         event.thread.send_files(files) 
+        return None
 
     if response is not None and random.random() < bucket.probability['response']:
         return event.thread.send_text(response)
@@ -62,7 +63,8 @@ def on_message(sender, event: fbchat.MessageEvent, bucket):
         if gif:
             r = requests.get(gif)
             files = bucket.client.upload([("gif.gif", r.content, content_lookup[ext])])
-            event.thread.send_files(files) 
+            event.thread.send_files(files)
+        return None
 
 
 
