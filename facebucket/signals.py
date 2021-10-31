@@ -38,7 +38,7 @@ def on_message(sender, event: fbchat.MessageEvent, bucket):
     if response is not None and random.random() < bucket.probability['response']:
         return event.thread.send_text(response)
     
-    if random.random() < bucket.probility['gif']:
+    if random.random() < bucket.probability['gif']:
         pass
 
 
