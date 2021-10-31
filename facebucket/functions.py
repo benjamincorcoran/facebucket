@@ -99,21 +99,24 @@ def load_word_lists(path):
 
 
 def get_keywords(event, bucket):
+
+
     keywords = {}
-    if isinstance(event.thread, fbchat.UserData):
+    if isinstance(event.thread, fbchat.User):
+        user = bucket.client._fetch_info([event.thread.id])
+        keywords.update({'\$USER': user[event.thread.id]['first_name'],
+                         '\$RANDOM': lambda _: random.choice([user[event.thread.id]['first_name'], 'Bucket'])})
+    else:
+        thread = bucket.client.fetch_thread_info([event.thread.id]).__next__()
         participants = {}
-        for participant in event.thread.participants:
+        for participant in thread.participants:
             participants.update(bucket.client._fetch_info([participant.id]))
 
         author_name = participants[event.author.id]['first_name']
         participant_names = [p['first_name'] for k,p in participants.items()]
 
-        keywords.update({'$USER': author_name,
-                         '$RANDOM': lambda: random.choice(participant_names)})
-    else:
-        user = bucket.client._fetch_info([event.thread.id])
-        keywords.update({'\$USER': user[event.thread.id]['first_name'],
-                         '\$RANDOM': lambda: random.choice([event.thread.first_name, 'Bucket'])})
+        keywords.update({'\$USER': author_name,
+                         '\$RANDOM': lambda _: random.choice(participant_names)})
 
     return keywords
 

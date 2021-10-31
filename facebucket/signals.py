@@ -59,7 +59,7 @@ def on_person_added(sender, event: fbchat.PeopleAdded, bucket, keywords):
 def on_new_response(sender, pattern, event, bucket, keywords):
 
     new_response = re.findall(pattern, event.message.text)[0]
-    author = keywords['$USER']
+    author = keywords['\$USER']
 
     confirm = f"Okay {author}, if someone says '{new_response[0]}' then I'll reply "
 
@@ -108,6 +108,11 @@ def on_new_item(sender, pattern, event, bucket, keywords):
 
 @actions.connect_via('give_item')
 def on_give_item(sender, pattern, event, bucket, keywords):
-    pass
+    
+    item = bucket.inventory.get()
+    target = re.findall(pattern, event.message.text)[0]
+
+    confirm = f'*Bucket gave {target} {item}.*'
+    event.thread.send_text(confirm)    
 
 
