@@ -82,10 +82,37 @@ class Responder(object):
                 matches.append((trigger, response, check.groups()))
 
         if len(matches) > 0:
-            ret = max(matches, key=lambda x: len(x[0].pattern))
-            return self.apply_keywords(ret[1], keywords)
+            match = max(matches, key=lambda x: len(x[0].pattern))
+            return self.process_response_type(match, keywords)
         else:
+            self.load()
             return None
+
+    def process_response_type(self, match, keywords):
+
+        trigger = match[0]
+        response = match[1]
+        captures = match[2]
+
+        
+        if isinstance(response, list):
+            if any([isinstance(i, dict) for i in response]):
+                tree_dict = [i for i in response if isinstance(i, dict)][0]
+                self.RESPONSES = {self.parse(trigger): response for trigger, response in tree_dict.items()}
+
+                if len(response) == 2:
+                    response = response[0]
+                else:
+                    response = response[1]
+                if response == '':
+                    return False
+            else:
+                response = random.choice(response)
+            
+        response = self.apply_keywords(response, keywords)
+        return response
+
+            
 
 class MemoryResponder(Responder):
     def __init__(self, responses):
