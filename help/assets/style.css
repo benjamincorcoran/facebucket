@@ -1,0 +1,47 @@
+
+textarea{
+    font-size: 10px !important;
+    font-family:'Courier New', Courier, monospace !important;
+    height: 100px;
+}
+
+.chat{
+    margin:auto;
+    width:50%;
+}
+.msg_cotainer{
+    margin-top: 10px;
+    margin-bottom: auto;
+    margin-left: 200px;
+    border-radius: 25px;
+    background-color: #82ccdd;
+    padding: 10px;
+    position: relative;
+    width: 250px;
+    
+}
+.msg_cotainer_send{
+    margin-top: 10px;
+    margin-bottom: auto;
+    margin-right: 10px;
+    border-radius: 25px;
+    background-color: #78e08f;
+    padding: 10px;
+    position: relative;
+    width: 250px;
+}
+
+.msg_time{
+    position: absolute;
+    left: 0;
+    bottom: -15px;
+    color: rgba(255,255,255,0.5);
+    font-size: 10px;
+}
+.msg_time_send{
+    position: absolute;
+    right:0;
+    bottom: -15px;
+    color: rgba(255,255,255,0.5);
+    font-size: 10px;
+}
