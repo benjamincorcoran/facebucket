@@ -1,0 +1,10 @@
+{
+    "new_response": "if (.*) then (.*)", 
+    "new_choice": "if (.*) choose (.*)", 
+    "new_tree": "if (.*) tree (\\[.*\\])", 
+    "delete_resposne": "bucket no more (.*)", 
+    "new_item": "give bucket (.*)", 
+    "give_item": "bucket give (\\w+) a present",
+    "set_probability": "bucket set probability (\\w+) ([0-9\\.]*)"
+
+}
