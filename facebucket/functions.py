@@ -14,6 +14,7 @@ from nltk.corpus import stopwords
 from . import COOKIES_PATH, GIPHY_PATH
 
 STOPWORDS = set(stopwords.words('english'))
+CONTENT = {'mp4':'video/mp4', 'gif':'image/gif', 'mp3':'audio/mp3'}
 
 
 def get_cookies_from_login(cookies_path=COOKIES_PATH):
@@ -148,3 +149,12 @@ def get_gif(text) -> str:
         return f'https://media.giphy.com/media/{gifid}/giphy.gif'
     else:
         return False
+
+
+def send_file(url, client, thread):
+    r = requests.get(url)
+    ext = url.split('.')[-1]
+    file = url.split('/')[-1]
+    
+    files = client.upload([(file, r.content, CONTENT[ext])])
+    thread.send_files(files)

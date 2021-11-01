@@ -1,17 +1,17 @@
 import re
+import time
 import fbchat 
 import blinker
 import datetime
 import random
-import requests
 
-from .functions import get_gif, get_keywords
+from .functions import get_gif, get_keywords, send_file
 
 events = blinker.Signal()
 actions = blinker.Signal()
+responses = blinker.Signal()
 delayed_actions = blinker.Signal()
 
-content_lookup = {'mp4':'video/mp4', 'gif':'image/gif', 'mp3':'audio/mp3'}
 
 # Handle message events
 @events.connect_via(fbchat.MessageEvent)
@@ -39,44 +39,79 @@ def on_message(sender, event: fbchat.MessageEvent, bucket):
     
     # Else look for a saved message
     response = bucket.responder.check(event.message.text, keywords)
-    
-    if response is not None and re.findall('\$TIMEOUT', response):
-        response = response.replace('$TIMEOUT','').strip()
+
+    kwargs = dict(response=response, event=event, bucket=bucket)
+
+    if response is not None:
+        if re.findall('\$TIMEOUT', response):
+            responses.send('timeout', **kwargs)
+        elif re.findall('\$URL', response):
+            responses.send('file',  **kwargs)
+        else:
+            responses.send('known_response',  **kwargs)
+    else:
+        responses.send('gif',  **kwargs)
+
+
+
+@responses.connect_via('known_response')
+def on_known_response(responsetype, response, event, bucket):
+    if random.random() < bucket.probability['response']:
         event.thread.send_text(response)
-        on_time_out(event, bucket)
-        return None
+
+
+@responses.connect_via('timeout')
+def on_timeout_trigger(responsetype, response, event, bucket):
+    response = response.replace('\$TIMEOUT').strip()
+    event.thread.send_text(response)
     
-    if response is not None and re.findall('\$URL', response) and random.random() < bucket.probability['response']:
+    if not isinstance(event.thread, fbchat.Group):
+        return None
+
+    in_time = datetime.datetime.now() + datetime.timedelta(seconds=30)
+    meta = dict(user_id = event.author.id, thread_id = event.thread.id)
+    bucket.delayed_actions.append((in_time, 'time_in', meta))
+
+    try:
+        event.thread.remove_participant([event.author.id])
+    except Exception as e:
+        print(e)
+
+
+@responses.connect_via('file')
+def on_send_file(responsetype, response, event, bucket):
+    if random.random() < bucket.probability['response']:
         url = re.findall('\$URL:(.*)', response)[0]
-        ext = url.split('.')[-1]
-        r = requests.get(url)
-        files = bucket.client.upload([(f"_.{ext}", r.content, content_lookup[ext])])
-        event.thread.send_files(files) 
-        return None
+        send_file(url, bucket.client, event.thread)
 
-    if response is not None and random.random() < bucket.probability['response']:
-        return event.thread.send_text(response)
-    
+
+@responses.connect_via('gif')
+def on_send_gif(responsetype, response, event, bucket):
     if random.random() < bucket.probability['gif']:
-        gif = get_gif(event.message.text)
-        ext = gif.split('.')[-1]
-        if gif:
-            r = requests.get(gif)
-            files = bucket.client.upload([("gif.gif", r.content, content_lookup[ext])])
-            event.thread.send_files(files)
-        return None
-
+        url = get_gif(event.message.text)
+        send_file(url, bucket.client, event.thread)
 
 
 @events.connect_via(fbchat.PeopleAdded)
-@events.connect_via(fbchat.PersonRemoved)
-def on_person_added(sender, event: fbchat.PeopleAdded, bucket):
+@actions.connect_via('help')
+def on_person_added(sender, event, bucket, **kwargs):
     '''
     Handle People being added and removed
     '''
-    pass
-    # response = bucket.assets[sender]
-    # event.thread.send_text(response)
+    event.thread.send_text(bucket.help)
+
+
+@actions.connect_via('quiet')
+def on_global_quiet(sender, pattern, event, bucket, keywords):
+    quiet_time = int(re.findall(pattern, event.message.text)[0])
+
+    if quiet_time < 60:
+        event.thread.send_text(f"Okay, I'll be quiet for {quiet_time} minutes")
+        time.sleep(60*quiet_time)
+    else:
+        event.thread.send_text(f"Err... I'll be quiet for an hour.")
+        time.sleep(60*60)
+
 
 
 @actions.connect_via('new_response')
@@ -106,8 +141,8 @@ def on_new_response(sender, pattern, event, bucket, keywords):
 def on_set_probability(sender, pattern, event, bucket, keywords):
 
     prob, value = re.findall(pattern, event.message.text)[0]
-    value = float(value)
-    bucket.set_probability(**{prob.lower():value})
+    bucket.set_probability(**{prob.lower():float(value)})
+
     event.thread.send_text(f'Probability of {prob} set to {value}.')
 
 
@@ -142,21 +177,14 @@ def on_give_item(sender, pattern, event, bucket, keywords):
     event.thread.send_text(confirm)    
 
 
-def on_time_out(event, bucket):
+@actions.connect_via('band_name')
+def on_band_name(sender, pattern, event, bucket, keywords):
+    if random.random() < bucket.probability['band']:
     
-    if not isinstance(event.thread, fbchat.Group):
-        return None
-
-    in_time = datetime.datetime.now() + datetime.timedelta(seconds=30)
-    
-    meta = dict(user_id = event.author.id, thread_id = event.thread.id)
-
-    bucket.delayed_actions.append((in_time, 'time_in', meta))
-
-    try:
-        event.thread.remove_participant([event.author.id])
-    except Exception as e:
-        print(e)
+        band_name = re.findall(pattern, event.message.text)[0]
+        response = f'{band_name} would be a good name for a $GENRE band.'
+        response = bucket.responder.apply_keywords(response, keywords)
+        event.thread.send_text(response)
 
 
 @delayed_actions.connect_via('time_in')

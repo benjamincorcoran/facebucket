@@ -28,28 +28,22 @@ class Bucket(fbchat.Listener):
         self.assets = {}
         self.delayed_actions = []
 
-        self.load_assets()
-
+        self.help = self.load_assets('help.txt')
+        self.probability = self.load_assets('probability.json')
+        
         self.responder = Responder(resources.path(assets, 'responses.json').__enter__())
         self.inventory = LimitedInventory(resources.path(assets, 'inventory.json').__enter__(), 30)
 
+        self.add_actions(**self.load_assets('actions.json'))
+
     
-    def load_assets(self):
+    def load_assets(self, asset_name):
 
-        for asset in resources.contents(assets):
-
-            if asset.split('.')[-1] in ['txt','json']:
-                asset_text = resources.read_text(assets, asset)
-
-                if asset[-4:] == '.txt':
-                    self.assets[asset[:-4]] = asset_text
-
-                elif asset == 'probability.json':
-                    self.probability = json.loads(asset_text)
-
-                elif asset == 'actions.json':
-                    self.add_actions(**json.loads(asset_text))
-        
+        asset_text = resources.read_text(assets, asset_name)
+        if asset_name.split('.')[-1] == 'json':
+            return json.loads(asset_text)
+        else:
+            return asset_text
 
 
     def set_probability(self, **kwargs):
@@ -83,6 +77,7 @@ class Bucket(fbchat.Listener):
         
         for i in drop_actions:
             self.delayed_actions.pop(i)
+
 
 
     def listen(self):
