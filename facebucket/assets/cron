@@ -1,0 +1,2 @@
+@reboot python3 -m facebucket
+0 1 * * * /sbin/shutdown -r +5
