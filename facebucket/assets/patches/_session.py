@@ -23,7 +23,6 @@ SERVER_JS_DEFINE_REGEX = re.compile(
 )
 SERVER_JS_DEFINE_JSON_DECODER = json.JSONDecoder()
 
-
 def parse_server_js_define(html: str) -> Mapping[str, Any]:
     """Parse ``ServerJSDefine`` entries from a HTML document."""
     # Find points where we should start parsing
