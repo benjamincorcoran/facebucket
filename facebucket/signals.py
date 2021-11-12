@@ -5,7 +5,7 @@ import blinker
 import datetime
 import random
 
-from .functions import get_gif, get_keywords, send_file
+from .functions import get_gif, get_keywords, send_file, get_current_national_day
 
 events = blinker.Signal()
 actions = blinker.Signal()
@@ -196,4 +196,18 @@ def on_time_in(sender, meta, bucket):
     thread = bucket.client.fetch_thread_info([thread_id]).__next__()
     thread.add_participants([user_id])
     thread.send_text('I hope you learned your lesson.')
+
+
+@delayed_actions.connect_via('happy_national_day')
+def on_happy_national_day(sender, meta, bucket):
+
+    national_day = get_current_national_day()
+
+    threads = bucket.client.fetch_threads()
+
+    if random.random() < bucket.probability['national_day']:
+        for thread in threads: 
+            id = thread.id
+            thread = bucket.client.fetch_thread_info([id]).__next__()
+            thread.send_text(f'Happy {national_day}')
 

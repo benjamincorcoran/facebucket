@@ -10,7 +10,7 @@ from fbchat import _util, _exception, _session, _graphql, _events
 
 from . import assets
 from .functions import load_word_lists
-from .responder import Responder
+from .responder import Responder, TimedResponder
 from .inventory import LimitedInventory
 from .signals import events, delayed_actions
 
@@ -31,7 +31,9 @@ class Bucket(fbchat.Listener):
         self.help = self.load_assets('help.txt')
         self.probability = self.load_assets('probability.json')
         
+        
         self.responder = Responder(resources.path(assets, 'responses.json').__enter__())
+        self.timed_responder = TimedResponder(resources.path(assets, 'timed_responses.json').__enter__())
         self.inventory = LimitedInventory(resources.path(assets, 'inventory.json').__enter__(), 30)
 
         self.add_actions(**self.load_assets('actions.json'))
@@ -77,7 +79,12 @@ class Bucket(fbchat.Listener):
         
         for i in drop_actions:
             self.delayed_actions.pop(i)
+            
 
+    def check_for_timed_actions(self):
+        response = self.timed_responder.check()
+        if response is not None:
+            delayed_actions.send(response, meta={}, bucket=self)
 
 
     def listen(self):

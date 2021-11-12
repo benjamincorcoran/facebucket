@@ -1,7 +1,9 @@
 import re 
 import json 
 import random
+import datetime
 
+from croniter import croniter
 from importlib import resources
 
 from . import assets
@@ -123,9 +125,38 @@ class MemoryResponder(Responder):
         self.rawResponses = responses
         self.path = 'MEMORY'
 
-
         self.RESPONSES = {
             self.parse(trigger): response for trigger,
             response in self.rawResponses.items()}
+
+
+class TimedResponder(Responder):
+    def load(self, path):
+
+        base_time = datetime.datetime.now()
+        with open(self.path, 'r') as f:
+            self.rawResponses = json.load(f)
+
+        self.RESPONSES = {croniter(k, base_time): v for k,v in  self.rawResponses.items()}
+
+
+    def check(self, keywords):
+
+        current_time = datetime.datetime.now()
+
+        triggered_responses = []
+        for time, response in self.RESPONSES.items():
+            if time.get_next() < current_time:
+                triggered_responses.append(response)
+        
+        if len(triggered_responses) > 0:
+            self.RESPONSES = {croniter(k, current_time): v for k,v in  self.rawResponses.items()}
+        
+            response = random.choice(triggered_responses)
+            response = self.apply_keywords(response, keywords)
+
+            return response 
+
+
 
 

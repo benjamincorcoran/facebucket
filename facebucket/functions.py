@@ -6,12 +6,13 @@ import fbchat
 import getpass
 import random
 import requests
+import datetime 
 
 import nltk
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 
-from . import COOKIES_PATH, GIPHY_PATH
+from . import COOKIES_PATH, GIPHY_PATH, assets
 
 STOPWORDS = set(stopwords.words('english'))
 CONTENT = {'mp4':'video/mp4', 'gif':'image/gif', 'mp3':'audio/mp3'}
@@ -101,7 +102,6 @@ def load_word_lists(path):
 
 def get_keywords(event, bucket):
 
-
     keywords = {}
     if isinstance(event.thread, fbchat.User):
         user = bucket.client._fetch_info([event.thread.id])
@@ -158,3 +158,15 @@ def send_file(url, client, thread):
     
     files = client.upload([(file, r.content, CONTENT[ext])])
     thread.send_files(files)
+
+
+def get_current_national_day():
+
+    URL = 'https://national-api-day.herokuapp.com/api/today'
+
+    national_days_response = requests.get(URL).json()
+    national_days = national_days_response['holidays']
+
+    return random.choice(national_days)
+
+
