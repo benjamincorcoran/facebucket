@@ -8,5 +8,6 @@
     "set_probability": "bucket set probability (\\w+) ([0-9\\.]*)",
     "band_name": "^(\\w+ \\w+ \\w+)$",
     "help": "bucket help",
-    "quiet": "bucket shut up (\\d+)"
+    "quiet": "bucket shut up (\\d+)",
+    "youtube_url":"(.*(?:youtu.be|youtube.com)[^\\s]+).*"
 }

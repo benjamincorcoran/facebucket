@@ -2,3 +2,4 @@ pbr
 git+https://github.com/carpedm20/fbchat.git
 nltk
 blinker
+youtube-dl

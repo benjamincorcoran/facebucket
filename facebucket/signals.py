@@ -1,9 +1,11 @@
 import re
+import os
 import time
 import fbchat 
 import blinker
 import datetime
 import random
+import youtube_dl
 
 from .functions import get_gif, get_keywords, send_file
 
@@ -133,6 +135,7 @@ def on_new_response(sender, pattern, event, bucket, keywords):
         new_response = [new_response[0], json.loads(new_response[1])]
         confirm += f"'{new_response[1][0]}' then enter this tree {new_response[1][1]}."
     
+
     bucket.responder.add(*new_response)
     event.thread.send_text(confirm)
 
@@ -196,4 +199,38 @@ def on_time_in(sender, meta, bucket):
     thread = bucket.client.fetch_thread_info([thread_id]).__next__()
     thread.add_participants([user_id])
     thread.send_text('I hope you learned your lesson.')
+
+
+@actions.connect_via('youtube_url')
+def on_video(sender, pattern, event, bucket, keywords):
+
+    url = re.findall(pattern, event.message.text)[0]
+
+
+    options = {'noplaylist':True,
+               'outtmpl':'tmpfile',
+               'format':'best[filesize<10M]'}
+
+    try:            
+        with youtube_dl.YoutubeDL(options) as ydl:
+            ydl.download([url])
+    except:
+        return None
+
+    event.thread.send_text('Give me a minute...')
+    
+    try:
+        with open('./tmpfile', 'rb') as f:
+            video = f.read()
+        
+        files = bucket.client.upload([('tmpfile', video, 'video/mp4')])
+        event.thread.send_files(files)
+
+        os.unlink('./tmpfile')
+    
+    except:
+        return None
+
+    
+    
 
