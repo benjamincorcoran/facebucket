@@ -5,7 +5,7 @@ import fbchat
 import blinker
 import datetime
 import random
-import youtube_dl
+import yt_dlp
 
 from .functions import get_gif, get_keywords, send_file
 
@@ -212,7 +212,7 @@ def on_video(sender, pattern, event, bucket, keywords):
                'format':'best[filesize<10M]'}
 
     try:            
-        with youtube_dl.YoutubeDL(options) as ydl:
+        with yt_dlp.YoutubeDL(options) as ydl:
             ydl.download([url])
     except:
         return None
