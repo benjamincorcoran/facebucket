@@ -202,6 +202,7 @@ def on_time_in(sender, meta, bucket):
 
 
 @actions.connect_via('youtube_url')
+@actions.connect_via('twitter_url')
 def on_video(sender, pattern, event, bucket, keywords):
 
     url = re.findall(pattern, event.message.text)[0]
@@ -209,7 +210,7 @@ def on_video(sender, pattern, event, bucket, keywords):
 
     options = {'noplaylist':True,
                'outtmpl':'tmpfile',
-               'format':'best[filesize<10M]'}
+               'format':'best'}
 
     try:            
         with yt_dlp.YoutubeDL(options) as ydl:

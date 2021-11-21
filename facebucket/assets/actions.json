@@ -9,5 +9,6 @@
     "band_name": "^(\\w+ \\w+ \\w+)$",
     "help": "bucket help",
     "quiet": "bucket shut up (\\d+)",
-    "youtube_url":"(.*(?:youtu.be|youtube.com)[^\\s]+).*"
+    "youtube_url":"(.*(?:youtu.be|youtube.com)[^\\s]+).*",
+    "twitter_url":".*(twitter.com[^\\s]+).*"
 }
