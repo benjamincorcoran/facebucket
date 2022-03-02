@@ -25,17 +25,20 @@ def on_message(sender, event: fbchat.MessageEvent, bucket):
         event: The fbchat.event object 
         client: Bucket client object
     '''
-    
+
     if event.author.id == bucket.id:
         return None
-
-    keywords = get_keywords(event, bucket)
 
     # Mark the message as read
     bucket.client.mark_as_read([event.thread], at=datetime.datetime.now())
 
+    if not isinstance(event.message.text, str):
+        return None
+
+    keywords = get_keywords(event, bucket)
+
     # If is a valid action 
-    for action, pattern in bucket.actions.items():
+    for action, pattern in bucket.actions.items():      
         if pattern.match(event.message.text):
             return actions.send(action, pattern=pattern, event=event, bucket=bucket, keywords=keywords)
     
